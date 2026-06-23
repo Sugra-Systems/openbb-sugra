@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/coverage.png" alt="Sugra for OpenBB - 73 OpenBB data models from one Sugra key" width="960">
+<img src="https://raw.githubusercontent.com/Sugra-Systems/openbb-sugra/main/assets/coverage.png" alt="Sugra for OpenBB - 73 OpenBB data models from one Sugra key" width="960">
 
 # openbb-sugra
 
@@ -16,6 +16,8 @@ One Sugra API key. 73 OpenBB data models. One provider.
 </div>
 
 ---
+
+**One Sugra API key. 73 OpenBB data models. One provider.**
 
 Wire in one credential and pull equities and fundamentals, estimates, ownership, calendars, options, crypto, currencies, news, macro and rates, treasuries, ETFs and indices, commodities, and maritime data - the breadth that otherwise needs many separate provider keys. Every model is live-verified against the Sugra API and through the OpenBB `obb.*` layer.
 
@@ -55,11 +57,11 @@ obb.crypto.price.historical("BITCOIN", provider="sugra")
 
 ## 4. Coverage
 
-A single Sugra key fulfils 73 OpenBB standard data models across eleven command groups - equity, economy, ETF, currency, fixed income, index, CFTC, commodity, crypto, news, and derivatives. The full matrix is generated from the shipped fetchers - see [`COVERAGE.md`](COVERAGE.md).
+A single Sugra key fulfils 73 OpenBB standard data models across eleven command groups - equity, economy, ETF, currency, fixed income, index, CFTC, commodity, crypto, news, and derivatives. The full matrix is generated from the shipped fetchers - see [`COVERAGE.md`](https://github.com/Sugra-Systems/openbb-sugra/blob/main/COVERAGE.md).
 
 ## 5. License
 
-AGPL-3.0-only. This package links the AGPL-3.0 `openbb-core` library. The Sugra API itself is a separate hosted service reached over HTTPS. See [`LICENSE`](LICENSE).
+AGPL-3.0-only. This package links the AGPL-3.0 `openbb-core` library. The Sugra API itself is a separate hosted service reached over HTTPS. See [`LICENSE`](https://github.com/Sugra-Systems/openbb-sugra/blob/main/LICENSE).
 
 ---
 
