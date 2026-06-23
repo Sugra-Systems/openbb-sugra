@@ -6,7 +6,7 @@
 
 **Sugra data provider extension for the [OpenBB Platform](https://github.com/OpenBB-finance/OpenBB).**
 
-[![PyPI](https://img.shields.io/pypi/v/openbb-sugra?color=00AAFF&label=PyPI)](https://pypi.org/project/openbb-sugra/)
+[![PyPI](https://img.shields.io/pypi/v/openbb-sugra?color=00AAFF&label=PyPI&cacheSeconds=3600)](https://pypi.org/project/openbb-sugra/)
 [![Python](https://img.shields.io/badge/python-3.10--3.12-00AAFF)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-00AAFF)](LICENSE)
 [![OpenBB](https://img.shields.io/badge/OpenBB-provider-00AAFF)](https://docs.openbb.co/)
