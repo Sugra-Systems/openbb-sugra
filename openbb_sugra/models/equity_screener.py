@@ -84,7 +84,7 @@ class SugraEquityScreenerFetcher(
         )
 
         api_key = get_api_key(credentials)
-        # The upstream custom screener expects the Yahoo nested-operand format:
+        # The upstream custom screener expects a nested-operand format:
         # region as an EQ/OR group, plus comparison operands under a top-level AND.
         operands: list = [
             {

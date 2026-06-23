@@ -17,7 +17,7 @@ def map_record(record: dict) -> dict:
         # Sugra's predefined-screener change_pct is a WHOLE percent (e.g. 49.79 =
         # 49.79%), but EquityPerformance.percent_change expects a normalized
         # fraction (the field carries x-frontend_multiply 100), so divide by 100 -
-        # matching FMP's equity screeners (openbb_fmp equity_gainers _normalize_percent).
+        # matching how OpenBB's other equity-performance providers normalize this field.
         "percent_change": (
             record.get("change_pct") / 100.0
             if isinstance(record.get("change_pct"), (int, float))
