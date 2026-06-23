@@ -33,7 +33,7 @@ class SugraMarketSnapshotsData(MarketSnapshotsData):
             "exchange": v.get("exchange"),
             "close": v.get("price"),
             "change": v.get("change"),
-            # Yahoo summary returns percent like -1.29 (-1.29%); normalize to a fraction.
+            # The upstream summary returns percent like -1.29 (-1.29%); normalize to a fraction.
             "change_percent": (change_pct / 100.0) if change_pct is not None else None,
         }
         return {k: val for k, val in out.items() if val is not None}

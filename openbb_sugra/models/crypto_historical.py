@@ -57,7 +57,7 @@ class SugraCryptoHistoricalFetcher(
 
         api_key = get_api_key(credentials)
 
-        # The endpoint keys on the CoinGecko coin id (e.g. "bitcoin"), lower-case.
+        # The endpoint keys on the Sugra coin id (e.g. "bitcoin"), lower-case.
         coin_id = query.symbol.lower().replace("/", "")
 
         # Map the requested window to the nearest accepted bucket.

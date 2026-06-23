@@ -51,7 +51,7 @@ class SugraEquityQuoteData(EquityQuoteData):
         out["close"] = v.get("regularMarketPrice")
         out["prev_close"] = v.get("regularMarketPreviousClose")
         out["change"] = v.get("regularMarketChange")
-        # Yahoo returns change percent as a fraction already (e.g. -0.0033 = -0.33%);
+        # The upstream returns change percent as a fraction already (e.g. -0.0033 = -0.33%);
         # the standard model treats this column as a normalized percent.
         out["change_percent"] = v.get("regularMarketChangePercent")
         out["volume"] = v.get("regularMarketVolume")

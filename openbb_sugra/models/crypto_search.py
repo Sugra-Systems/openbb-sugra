@@ -21,7 +21,7 @@ class SugraCryptoSearchData(CryptoSearchData):
 
     coin_id: str | None = Field(
         default=None,
-        description="Sugra/CoinGecko coin id used for history lookups.",
+        description="Sugra coin id used for crypto history lookups.",
         alias="id",
     )
 
