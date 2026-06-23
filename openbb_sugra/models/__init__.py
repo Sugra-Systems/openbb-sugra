@@ -1,0 +1,1 @@
+"""Sugra provider fetcher models."""

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#212126; --bg-deeper:#1a191e; --card:#26262d; --elev:#303038; --line:#36363f;
+    --blue:#00AAFF; --blue-soft:#66C2FF; --grey:#8A8A90;
+    --ink:#FFFFFF; --amber:#F5A623;
+    --serif:'DM Serif Display',Georgia,serif; --sans:'DM Sans',system-ui,sans-serif; --mono:'DM Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg-deeper)}
+  .frame{width:1280px;background:radial-gradient(1100px 440px at 80% -10%, #262630 0%, var(--bg) 48%);
+    padding:64px 72px 58px;font-family:var(--sans);color:var(--ink);position:relative;overflow:hidden}
+  .frame:before{content:"";position:absolute;left:0;top:0;height:3px;width:100%;
+    background:linear-gradient(90deg,var(--blue),var(--blue-soft) 55%,transparent)}
+  .head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:44px}
+  .wm{font-family:var(--serif);font-size:46px;letter-spacing:-.02em;line-height:.9}
+  .wm .ai{font-style:italic;color:var(--amber)}
+  .lockup{display:flex;align-items:center;gap:24px}
+  .obblogo{height:42px;width:auto;color:var(--ink);display:block}
+  .divider{width:1px;height:40px;background:var(--line)}
+  .sub{font-family:var(--mono);font-size:13px;color:var(--grey);letter-spacing:.14em;text-transform:uppercase;margin-top:28px}
+  .pill{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    border:1px solid var(--blue);color:var(--blue);border-radius:999px;padding:7px 14px;display:inline-flex;align-items:center;gap:9px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--blue);box-shadow:0 0 9px 1px var(--blue)}
+  .hero{display:flex;align-items:flex-end;gap:36px;margin:6px 0 30px}
+  .big{font-family:var(--serif);font-size:138px;line-height:.84;color:var(--ink)}
+  .hero .cap{padding-bottom:16px}
+  .cap .l1{font-family:var(--serif);font-size:32px;line-height:1.1;color:var(--ink)}
+  .cap .l1 em{font-style:italic;color:var(--amber)}
+  .cap .l2{font-family:var(--sans);font-size:16px;color:var(--grey);margin-top:9px;max-width:620px;line-height:1.5}
+  .bar{height:14px;border-radius:8px;overflow:hidden;display:flex;border:1px solid var(--line);background:var(--blue)}
+  .barcap{font-family:var(--sans);font-size:25px;font-weight:500;color:var(--ink);margin-top:18px;line-height:1.3;letter-spacing:-.01em}
+  .barcap b{color:var(--blue);font-weight:700}
+  .barcap .am{color:var(--amber);font-weight:700}
+  .h2{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--grey);margin:38px 0 16px}
+  .grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+  .cell{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:15px 16px}
+  .cell .n{font-family:var(--serif);font-size:30px;color:var(--blue);line-height:1}
+  .cell .g{font-family:var(--sans);font-size:13.5px;color:var(--ink);margin-top:8px}
+  .cell .t{height:4px;border-radius:3px;background:var(--elev);margin-top:11px;overflow:hidden}
+  .cell .t i{display:block;height:100%;background:var(--blue)}
+  .cell.total{background:linear-gradient(180deg,#0c2536,#0a1c2a);border-color:#234f6b}
+  .cell.total .g{color:var(--blue-soft)}
+  .panel{background:var(--card);border:1px solid #234055;border-radius:14px;padding:24px 26px;margin-top:30px}
+  .ptitle{display:flex;align-items:center;gap:12px;font-family:var(--sans);font-weight:700;font-size:15px;margin-bottom:16px}
+  .tag{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:5px 11px;border-radius:999px;color:var(--blue);border:1px solid var(--blue)}
+  .chips{display:flex;flex-wrap:wrap;gap:9px}
+  .chip{font-family:var(--sans);font-size:13.5px;color:var(--ink);background:#0E2536;border:1px solid #234055;border-radius:8px;padding:8px 12px}
+  .foot{display:flex;align-items:center;justify-content:space-between;margin-top:34px;padding-top:20px;border-top:1px solid var(--line)}
+  .foot .l{font-family:var(--sans);font-size:13.5px;color:var(--grey);max-width:820px;line-height:1.5}
+  .foot .l b{color:var(--ink);font-weight:500}
+  .legal{font-family:var(--serif);font-size:19px;color:var(--ink);letter-spacing:-.01em}
+  .legal em{font-style:italic;color:var(--amber)}
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="head">
+    <div>
+      <div class="lockup">
+        <svg class="obblogo" viewBox="0 0 126 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="OpenBB"><g fill="currentColor"><path d="M60.707 1.416h-9.285v4.25h9.285v1.42h-7.854v4.25h9.283V1.423h-1.428l-.001-.007Zm0 7.793v.707H54.28V8.5h6.427v.709Zm0-5.668v.71h-7.854V2.831h7.855l-.001.71ZM69.99 11.333h2.852V7.087H64.99V5.671h9.285V1.42H63.562v9.913h6.428Zm-5-7.791v-.709h7.852V4.25H64.99v-.709Zm2.858 6.375H64.99V8.5h6.438v1.417h-3.58ZM63.563 0h-1.428v1.416h1.428V0ZM78.519 22.72v8.459l-.712-.704-.71-.706-.71-.704-.71-.706-.712-.704-.712-.705-.71-.704-.71-.706-.71-.706-.712-.704-.71-.704-.711-.705h-1.422V33.998h1.422V24.834l.711.706.71.706.711.704.71.705.712.704.71.706.71.704.712.706.71.704.712.705.71.706.71.704.71.704h.712V22.721H78.52ZM101.402 26.95h-1.421v-4.23h-8.528V34h11.374v-7.057h-1.422l-.003.007Zm-8.528-.71v-2.11h5.685v2.82h-5.685v-.71Zm8.528 2.82v3.528h-8.528v-4.227h8.528v.699ZM124.986 26.95h-2.131v-4.23h-8.529V34h11.37v-7.057l-.71.007Zm-9.239-.71v-2.11h5.687v2.82h-5.687v-.71Zm8.53 2.82v3.528h-8.53v-4.227h8.53v.699ZM55.732 22.72H45.78v11.278H57.15V32.59H47.204v-2.821H55.728v-1.41h-8.524V24.13H57.15V22.721h-1.418ZM9.95 22.72H.003V34h11.372V22.72H9.95Zm0 2.116v7.754H1.423v-8.46H9.95v.706ZM32.855 22.721h-9.949v11.28h1.422V29.77h9.948v-7.057h-1.421v.008Zm0 2.116v3.528h-8.527v-4.234h8.527v.706Z"></path></g></svg>
+        <span class="divider"></span>
+        <span class="wm">sugra<span class="ai">.ai</span></span>
+      </div>
+      <div class="sub">Sugra API provider &nbsp;&middot;&nbsp; openbb-sugra</div>
+    </div>
+    <span class="pill"><span class="dot"></span>Live verified</span>
+  </div>
+
+  <div class="hero">
+    <div class="big">73</div>
+    <div class="cap">
+      <div class="l1">OpenBB data models from <em>one</em> Sugra key</div>
+      <div class="l2">One provider, one credential, eleven command groups - instead of wiring up many separate provider keys.</div>
+    </div>
+  </div>
+
+  <div class="bar"></div>
+  <div class="barcap"><b>73 OpenBB standard models</b> served by a <span class="am">single Sugra API key</span></div>
+
+  <div class="h2">Coverage by command group</div>
+  <div class="grid">
+    <div class="cell"><div class="n">36</div><div class="g">Equity</div><div class="t"><i style="width:100%"></i></div></div>
+    <div class="cell"><div class="n">13</div><div class="g">Economy</div><div class="t"><i style="width:100%"></i></div></div>
+    <div class="cell"><div class="n">5</div><div class="g">ETF</div><div class="t"><i style="width:92%"></i></div></div>
+    <div class="cell"><div class="n">3</div><div class="g">Currency</div><div class="t"><i style="width:100%"></i></div></div>
+    <div class="cell"><div class="n">3</div><div class="g">Fixed income</div><div class="t"><i style="width:84%"></i></div></div>
+    <div class="cell"><div class="n">3</div><div class="g">Index</div><div class="t"><i style="width:84%"></i></div></div>
+    <div class="cell"><div class="n">2</div><div class="g">CFTC</div><div class="t"><i style="width:100%"></i></div></div>
+    <div class="cell"><div class="n">3</div><div class="g">Commodity</div><div class="t"><i style="width:84%"></i></div></div>
+    <div class="cell"><div class="n">2</div><div class="g">Crypto</div><div class="t"><i style="width:100%"></i></div></div>
+    <div class="cell"><div class="n">2</div><div class="g">News</div><div class="t"><i style="width:100%"></i></div></div>
+    <div class="cell"><div class="n">1</div><div class="g">Options</div><div class="t"><i style="width:70%"></i></div></div>
+    <div class="cell total"><div class="n">73</div><div class="g">total models</div><div class="t"><i style="width:100%"></i></div></div>
+  </div>
+
+  <div class="panel">
+    <div class="ptitle"><span class="tag">One key</span> Wire in once, pull every domain</div>
+    <div class="chips">
+      <span class="chip">Equities and fundamentals</span>
+      <span class="chip">Estimates and price targets</span>
+      <span class="chip">Ownership and calendars</span>
+      <span class="chip">Options</span>
+      <span class="chip">Crypto</span>
+      <span class="chip">Currencies</span>
+      <span class="chip">News</span>
+      <span class="chip">Macro and rates</span>
+      <span class="chip">Treasuries</span>
+      <span class="chip">ETFs and indices</span>
+      <span class="chip">Commodities</span>
+      <span class="chip">Maritime and ports</span>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div class="l"><b>Every model is verified</b> against the Sugra API and through the OpenBB obb.* layer. Volume-only pricing, commercial use permitted on every tier.</div>
+    <div class="legal">Sugra <em>Systems, Inc.</em></div>
+  </div>
+</div>
+</body>
+</html>

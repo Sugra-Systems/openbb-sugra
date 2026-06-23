@@ -1,0 +1,53 @@
+[tool.poetry]
+name = "openbb-sugra"
+version = "0.1.0"
+description = "Sugra data provider extension for the OpenBB Platform - one key across markets, fundamentals, macro, rates, crypto, currencies, news, ETFs, indices, and maritime data."
+authors = ["Sugra Systems <support@sugra.systems>"]
+license = "AGPL-3.0-only"
+readme = "README.md"
+homepage = "https://sugra.ai"
+repository = "https://github.com/Sugra-Systems/openbb-sugra"
+documentation = "https://github.com/Sugra-Systems/openbb-sugra/blob/main/COVERAGE.md"
+keywords = ["openbb", "sugra", "market data", "finance", "macro", "provider", "fastapi"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+packages = [{ include = "openbb_sugra" }]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4"
+openbb-core = "^1.6"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+pytest-recording = "^0.13"
+vcrpy = "^6.0"
+ruff = "^0.15"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.plugins."openbb_provider_extension"]
+sugra = "openbb_sugra:sugra_provider"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "UP", "SIM"]
+
+[tool.pytest.ini_options]
+markers = [
+    "record_http: record or replay the HTTP exchange for a test (pytest-recording).",
+]
