@@ -14,6 +14,7 @@ from openbb import obb
 GROUP_ORDER = [
     "equity",
     "economy",
+    "famafrench",
     "etf",
     "currency",
     "fixedincome",
@@ -22,11 +23,13 @@ GROUP_ORDER = [
     "commodity",
     "crypto",
     "news",
+    "uscongress",
     "derivatives",
 ]
 GROUP_DESC = {
     "equity": "Equities, fundamentals, estimates, ownership, calendars, discovery",
     "economy": "Macro, GDP, inflation, employment, money, shipping/ports",
+    "famafrench": "Fama-French academic factor returns",
     "etf": "ETFs",
     "currency": "Forex",
     "fixedincome": "Rates and fixed income",
@@ -35,6 +38,7 @@ GROUP_DESC = {
     "commodity": "Commodities and energy",
     "crypto": "Crypto",
     "news": "News",
+    "uscongress": "US Congress bills and amendments",
     "derivatives": "Options",
 }
 
