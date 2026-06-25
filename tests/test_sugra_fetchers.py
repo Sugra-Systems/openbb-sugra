@@ -55,6 +55,7 @@ PARAMS: dict[str, dict] = {
     "EtfInfo": {"symbol": "SPY"},
     "EtfPricePerformance": {"symbol": "SPY"},
     "EtfSearch": {"query": "SPY"},
+    "FamaFrenchFactors": {},
     "FederalFundsRate": {},
     "FinancialRatios": {"symbol": "AAPL"},
     "Form13FHR": {"symbol": "0001067983"},

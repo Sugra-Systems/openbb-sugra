@@ -43,6 +43,7 @@ from openbb_sugra.models.etf_holdings import SugraEtfHoldingsFetcher
 from openbb_sugra.models.etf_info import SugraEtfInfoFetcher
 from openbb_sugra.models.etf_price_performance import SugraEtfPricePerformanceFetcher
 from openbb_sugra.models.etf_search import SugraEtfSearchFetcher
+from openbb_sugra.models.famafrench_factors import SugraFamaFrenchFactorsFetcher
 from openbb_sugra.models.federal_funds_rate import SugraFederalFundsRateFetcher
 from openbb_sugra.models.financial_ratios import SugraFinancialRatiosFetcher
 from openbb_sugra.models.form_13FHR import SugraForm13FHRFetcher
@@ -149,6 +150,7 @@ sugra_provider = Provider(
         "EtfInfo": SugraEtfInfoFetcher,
         "EtfPricePerformance": SugraEtfPricePerformanceFetcher,
         "EtfSearch": SugraEtfSearchFetcher,
+        "FamaFrenchFactors": SugraFamaFrenchFactorsFetcher,
         "FederalFundsRate": SugraFederalFundsRateFetcher,
         "FinancialRatios": SugraFinancialRatiosFetcher,
         "Form13FHR": SugraForm13FHRFetcher,
