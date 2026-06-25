@@ -23,6 +23,11 @@ _DATASET_KEYS: dict[tuple[str, str], str] = {
     ("lt_reversal", "monthly"): "lt-reversal",
 }
 
+# Pull the entire series so transform_data can window by date without the API
+# silently dropping the oldest rows. Matches the Sugra API limit ceiling (le=30000),
+# which spans the longest daily factor history (~25k trading days since 1926).
+_FULL_SERIES_LIMIT = 30000
+
 
 def _to_iso_date(raw: str) -> str:
     """Normalise a Ken French period (YYYYMMDD / YYYYMM / YYYY) to ISO date."""
@@ -72,10 +77,14 @@ class SugraFamaFrenchFactorsFetcher(
 
         api_key = get_api_key(credentials)
         # Default response is only the trailing 60 records; request the full
-        # history (the endpoint caps at 1200 - the complete monthly series back
-        # to 1926, ~5y for daily) so a deep start_date is not silently truncated.
+        # history so a deep start_date is not silently truncated. transform_data
+        # windows by date AFTER the fetch, so the whole series must be pulled here.
+        # _FULL_SERIES_LIMIT matches the Sugra API ceiling (le=30000), which covers
+        # the longest daily factor history (~25k rows since 1926) with headroom.
         response = await sugra_get(
-            f"/api/v1/fama-french/dataset/{dataset_key}", api_key, {"limit": 1200}
+            f"/api/v1/fama-french/dataset/{dataset_key}",
+            api_key,
+            {"limit": _FULL_SERIES_LIMIT},
         )
         payload = envelope_data(response)
         return payload.get("records", []) if isinstance(payload, dict) else []
