@@ -575,12 +575,15 @@ def test_currency_reference_rates_rejects_non_ecb_fallback():
     else:
         raise AssertionError("a non-EUR base must raise EmptyDataError")
 
-    # Empty rates also raise.
-    try:
-        SugraCurrencyReferenceRatesFetcher.transform_data(
-            CurrencyReferenceRatesQueryParams(),
-            {"base": "EUR", "date": "2026-06-25", "rates": {}},
-        )
-    except EmptyDataError:
-        return
-    raise AssertionError("empty rates must raise EmptyDataError")
+    # Empty rates and a missing date both raise (the two halves of the guard).
+    for bad in (
+        {"base": "EUR", "date": "2026-06-25", "rates": {}},
+        {"base": "EUR", "date": None, "rates": {"USD": 1.08}},
+    ):
+        try:
+            SugraCurrencyReferenceRatesFetcher.transform_data(
+                CurrencyReferenceRatesQueryParams(), bad
+            )
+        except EmptyDataError:
+            continue
+        raise AssertionError(f"expected EmptyDataError for {bad}")
