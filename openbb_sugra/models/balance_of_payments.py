@@ -68,20 +68,29 @@ class SugraBalanceOfPaymentsData(
 
 
 def _period_to_date(period: str) -> str | None:
-    """Convert an ECB period ('2024-03', '2024-Q1', '2024') to a date string."""
+    """Convert an ECB period ('2024-03', '2024-Q1', '2024') to a date string.
+
+    Returns None for anything that would not form a valid date, so a malformed
+    period degrades to a None period rather than a raw ValidationError.
+    """
     if not period:
         return None
     period = str(period)
     if "-Q" in period:
         year, _, q = period.partition("-Q")
         month = _QUARTER_START_MONTH.get(q.strip())
-        if month is None:
+        if month is None or not year.isdigit():
             return None
         return f"{year}-{month:02d}-01"
     parts = period.split("-")
     if len(parts) >= 2:
-        return f"{parts[0]}-{int(parts[1]):02d}-01"
-    return f"{period}-01-01"
+        if not parts[0].isdigit() or not parts[1].isdigit():
+            return None
+        month = int(parts[1])
+        if not 1 <= month <= 12:
+            return None
+        return f"{parts[0]}-{month:02d}-01"
+    return f"{period}-01-01" if period.isdigit() else None
 
 
 class SugraBalanceOfPaymentsFetcher(
@@ -130,17 +139,28 @@ class SugraBalanceOfPaymentsFetcher(
         """Validate the wide period rows, coercing the ECB period to a date."""
         # pylint: disable=import-outside-toplevel
         from openbb_core.provider.utils.errors import EmptyDataError
+        from pydantic import ValidationError
 
         rows = (data or {}).get("data") or []
         if not rows:
             raise EmptyDataError("No ECB balance of payments data returned.")
         out: list[SugraBalanceOfPaymentsData] = []
+        dropped = 0
         for row in rows:
             if not isinstance(row, dict):
                 continue
             mapped = dict(row)
             mapped["period"] = _period_to_date(row.get("period", ""))
-            out.append(SugraBalanceOfPaymentsData.model_validate(mapped))
+            try:
+                out.append(SugraBalanceOfPaymentsData.model_validate(mapped))
+            except ValidationError:
+                # One malformed period/row must not discard the whole report.
+                dropped += 1
         if not out:
+            if dropped:
+                raise EmptyDataError(
+                    f"All {dropped} ECB balance of payments row(s) failed "
+                    "standard-model validation; the upstream shape may have changed."
+                )
             raise EmptyDataError("No ECB balance of payments rows produced.")
         return out

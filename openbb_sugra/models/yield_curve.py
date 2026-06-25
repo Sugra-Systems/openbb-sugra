@@ -80,19 +80,30 @@ class SugraYieldCurveFetcher(
         """Validate the per-maturity rows (maturity is already 'year_N'/'month_N')."""
         # pylint: disable=import-outside-toplevel
         from openbb_core.provider.utils.errors import EmptyDataError
+        from pydantic import ValidationError
 
         rows = (data or {}).get("rates") or []
         if not rows:
             raise EmptyDataError("No ECB yield curve data returned.")
         out: list[SugraYieldCurveData] = []
+        dropped = 0
         for row in rows:
             if not isinstance(row, dict) or not row.get("maturity"):
                 continue
-            out.append(SugraYieldCurveData.model_validate({
-                "date": row.get("date"),
-                "maturity": row["maturity"],
-                "rate": row.get("rate"),
-            }))
+            try:
+                out.append(SugraYieldCurveData.model_validate({
+                    "date": row.get("date"),
+                    "maturity": row["maturity"],
+                    "rate": row.get("rate"),
+                }))
+            except ValidationError:
+                # One malformed maturity must not discard the whole curve.
+                dropped += 1
         if not out:
+            if dropped:
+                raise EmptyDataError(
+                    f"All {dropped} ECB yield curve row(s) failed standard-model "
+                    "validation; the upstream shape may have changed."
+                )
             raise EmptyDataError("No ECB yield curve rows produced.")
         return out
