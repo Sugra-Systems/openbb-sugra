@@ -100,6 +100,7 @@ from openbb_sugra.models.short_term_energy_outlook import (
 from openbb_sugra.models.sofr import SugraSOFRFetcher
 from openbb_sugra.models.sonia_rates import SugraSONIAFetcher
 from openbb_sugra.models.trailing_dividend_yield import SugraTrailingDivYieldFetcher
+from openbb_sugra.models.treasury_auctions import SugraUSTreasuryAuctionsFetcher
 from openbb_sugra.models.undervalued_growth_equities import (
     SugraUndervaluedGrowthEquitiesFetcher,
 )
@@ -195,6 +196,7 @@ sugra_provider = Provider(
         "ShareStatistics": SugraShareStatisticsFetcher,
         "ShortTermEnergyOutlook": SugraShortTermEnergyOutlookFetcher,
         "TrailingDividendYield": SugraTrailingDivYieldFetcher,
+        "TreasuryAuctions": SugraUSTreasuryAuctionsFetcher,
         "Unemployment": SugraUnemploymentFetcher,
         "WorldNews": SugraWorldNewsFetcher,
     },

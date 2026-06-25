@@ -96,6 +96,7 @@ PARAMS: dict[str, dict] = {
     "ShareStatistics": {"symbol": "AAPL"},
     "ShortTermEnergyOutlook": {},
     "TrailingDividendYield": {"symbol": "AAPL"},
+    "TreasuryAuctions": {"security_type": "note", "page_size": 10},
     "Unemployment": {},
     "WorldNews": {},
 }
@@ -387,3 +388,97 @@ def test_famafrench_momentum_and_daily_live(credentials):
         asyncio.run(SugraFamaFrenchFactorsFetcher.aextract_data(daily_q, credentials)),
     )
     assert len(daily) > 60  # full history requested, not just the trailing 60
+
+
+# --- Treasury auctions (DATA-17.8) ----------------------------------------
+
+def test_treasury_auctions_maps_fields_and_skips_incomplete_rows():
+    """Maps the Sugra projection to the standard model; a row missing the
+    required issue_date/maturity_date is skipped, not failed."""
+    from openbb_core.provider.standard_models.treasury_auctions import (
+        USTreasuryAuctionsQueryParams,
+    )
+
+    from openbb_sugra.models.treasury_auctions import SugraUSTreasuryAuctionsFetcher
+
+    data = [
+        {
+            "cusip": "91282CXX0", "security_type": "Note", "security_term": "5-Year",
+            "issue_date": "2026-06-30", "maturity_date": "2031-06-30",
+            "auction_date": "2026-06-24", "interest_rate": 4.125,
+            "high_yield": "4.125", "bid_to_cover_ratio": "2.45",
+            "offering_amt": "70000000000", "total_accepted": "70000000000",
+            "allocation_method": "Single-Price", "allocation_pctage": 55.5,
+        },
+        # missing maturity_date -> required by the model, must be skipped
+        {"cusip": "X", "security_type": "Bill", "security_term": "8-Week",
+         "issue_date": "2026-06-25", "auction_date": "2026-06-23"},
+    ]
+    rows = SugraUSTreasuryAuctionsFetcher.transform_data(
+        USTreasuryAuctionsQueryParams(), data
+    )
+    assert len(rows) == 1
+    r = rows[0]
+    assert str(r.cusip) == "91282CXX0"
+    assert str(r.issue_date) == "2026-06-30"
+    assert str(r.maturity_date) == "2031-06-30"
+    assert r.high_yield == 4.125
+    assert r.offering_amount == 70000000000.0
+    assert r.auction_format == "Single-Price"
+    assert r.allocation_percentage == 55.5
+
+
+def test_treasury_auctions_client_side_cusip_and_date_filter():
+    """cusip + start/end_date are applied client-side (the endpoint ignores them).
+
+    Note: USTreasuryAuctionsQueryParams defaults the date window to ~the last 3
+    months, so the cusip case uses a wide explicit start_date to isolate the
+    cusip filter, and the date case sets an explicit window.
+    """
+    from datetime import date
+
+    from openbb_core.provider.standard_models.treasury_auctions import (
+        USTreasuryAuctionsQueryParams,
+    )
+
+    from openbb_sugra.models.treasury_auctions import SugraUSTreasuryAuctionsFetcher
+
+    base = {
+        "security_type": "Note", "security_term": "5-Year",
+        "issue_date": "2026-06-30", "maturity_date": "2031-06-30",
+    }
+    data = [
+        {**base, "cusip": "912828AA1", "auction_date": "2026-06-20"},
+        {**base, "cusip": "912828BB2", "auction_date": "2026-01-10"},
+    ]
+    # Wide window so only the cusip filter applies (default window is ~3 months).
+    by_cusip = SugraUSTreasuryAuctionsFetcher.transform_data(
+        USTreasuryAuctionsQueryParams(cusip="912828bb2", start_date=date(2000, 1, 1)),
+        data,
+    )
+    assert len(by_cusip) == 1 and str(by_cusip[0].cusip) == "912828BB2"
+
+    by_date = SugraUSTreasuryAuctionsFetcher.transform_data(
+        USTreasuryAuctionsQueryParams(start_date=date(2026, 6, 1), end_date=date(2026, 6, 30)),
+        data,
+    )
+    assert len(by_date) == 1 and str(by_date[0].cusip) == "912828AA1"
+
+
+def test_treasury_auctions_rejects_page_num_pagination():
+    """The Sugra endpoint has no page offset; page_num>1 must raise, not mislead."""
+    import asyncio
+
+    from openbb_core.app.model.abstract.error import OpenBBError
+    from openbb_core.provider.standard_models.treasury_auctions import (
+        USTreasuryAuctionsQueryParams,
+    )
+
+    from openbb_sugra.models.treasury_auctions import SugraUSTreasuryAuctionsFetcher
+
+    q = USTreasuryAuctionsQueryParams(page_num=2)
+    try:
+        asyncio.run(SugraUSTreasuryAuctionsFetcher.aextract_data(q, {"sugra_api_key": "x"}))
+    except OpenBBError:
+        return
+    raise AssertionError("page_num>1 should raise OpenBBError")

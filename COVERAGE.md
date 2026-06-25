@@ -1,6 +1,6 @@
 # openbb-sugra coverage
 
-One Sugra API key fulfils 78 OpenBB standard data models across 13 command groups. Install one provider, set one credential, and pull all of the below - instead of wiring many separate provider keys.
+One Sugra API key fulfils 79 OpenBB standard data models across 13 command groups. Install one provider, set one credential, and pull all of the below - instead of wiring many separate provider keys.
 
 | OpenBB command group | What it covers | Models |
 |---|---|---|
@@ -9,7 +9,7 @@ One Sugra API key fulfils 78 OpenBB standard data models across 13 command group
 | famafrench (1) | Fama-French academic factor returns | obb.famafrench.factors |
 | etf (5) | ETFs | obb.etf.historical, obb.etf.holdings, obb.etf.info, obb.etf.price_performance, obb.etf.search |
 | currency (3) | Forex | obb.currency.price.historical, obb.currency.search, obb.currency.snapshots |
-| fixedincome (3) | Rates and fixed income | obb.fixedincome.rate.effr, obb.fixedincome.rate.sofr, obb.fixedincome.rate.sonia |
+| fixedincome (4) | Rates and fixed income | obb.fixedincome.government.treasury_auctions, obb.fixedincome.rate.effr, obb.fixedincome.rate.sofr, obb.fixedincome.rate.sonia |
 | index (3) | Indices | obb.index.available, obb.index.constituents, obb.index.price.historical |
 | cftc (2) | CFTC Commitment of Traders | obb.cftc.cot, obb.cftc.cot_search |
 | commodity (3) | Commodities and energy | obb.commodity.petroleum_status_report, obb.commodity.price.spot, obb.commodity.short_term_energy_outlook |
