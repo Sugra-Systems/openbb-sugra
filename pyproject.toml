@@ -26,6 +26,7 @@ packages = [{ include = "openbb_sugra" }]
 [tool.poetry.dependencies]
 python = ">=3.10,<4"
 openbb-core = "^1.6"
+openbb-congress-gov = "^1.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"

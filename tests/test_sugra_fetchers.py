@@ -34,6 +34,8 @@ PARAMS: dict[str, dict] = {
     "CommoditySpotPrices": {},
     "CompanyFilings": {"symbol": "AAPL"},
     "CompanyNews": {"symbol": "AAPL"},
+    "CongressAmendments": {"congress": 119, "limit": 5},
+    "CongressBills": {"congress": 119, "limit": 5},
     "ConsumerPriceIndex": {},
     "CryptoHistorical": {"symbol": "BITCOIN"},
     "CryptoSearch": {"query": "bitcoin"},
@@ -137,6 +139,104 @@ def test_fetcher_returns_live_data(key, fetcher, credentials):
     """Live pre-publish gate: each fetcher returns real data from the Sugra API."""
     result = fetcher.test(PARAMS[key], credentials)
     assert result is None
+
+
+# --- Congress-specific regression tests (offline) ---------------------------
+
+
+def test_congress_bills_null_latest_action_does_not_crash():
+    """A placeholder bill with latestAction:null maps to latest_action=None."""
+    from openbb_sugra.models.congress_bills import SugraCongressBillsFetcher
+
+    query = SugraCongressBillsFetcher.transform_query({})
+    data = [
+        {
+            "congress": 119,
+            "number": "6",
+            "type": "HR",
+            "title": "Reserved for the Speaker.",
+            "originChamber": "House",
+            "originChamberCode": "H",
+            "url": "https://api.congress.gov/v3/bill/119/hr/6?format=json",
+            "updateDate": "2025-01-14",
+            "latestAction": None,
+        }
+    ]
+    rows = SugraCongressBillsFetcher.transform_data(query, data)
+    assert len(rows) == 1
+    assert rows[0].latest_action is None
+
+
+def test_congress_amendment_type_filter_drops_other_types():
+    """A requested amendment_type keeps only rows of that type (Sugra ignores it)."""
+    from openbb_sugra.models.congress_amendments import SugraCongressAmendmentsFetcher
+
+    query = SugraCongressAmendmentsFetcher.transform_query(
+        {"congress": 119, "amendment_type": "samdt"}
+    )
+    data = [
+        {"congress": 119, "number": "1", "type": "HAMDT",
+         "updateDate": "2025-01-02T00:00:00Z", "url": "https://x/1"},
+        {"congress": 119, "number": "2", "type": "SAMDT",
+         "updateDate": "2025-01-01T00:00:00Z", "url": "https://x/2"},
+    ]
+    rows = SugraCongressAmendmentsFetcher.transform_data(query, data)
+    assert {r.amendment_type for r in rows} == {"SAMDT"}
+
+
+def test_congress_rejects_offset_and_unbounded_limit():
+    """offset>0 and limit=0 are unsupported by Sugra and raise, not mislead."""
+    import asyncio
+
+    from openbb_core.app.model.abstract.error import OpenBBError
+
+    from openbb_sugra.models.congress_bills import SugraCongressBillsFetcher
+
+    creds = {"sugra_api_key": "unused"}
+    with pytest.raises(OpenBBError):
+        asyncio.run(
+            SugraCongressBillsFetcher.aextract_data(
+                SugraCongressBillsFetcher.transform_query({"offset": 5}), creds
+            )
+        )
+    with pytest.raises(OpenBBError):
+        asyncio.run(
+            SugraCongressBillsFetcher.aextract_data(
+                SugraCongressBillsFetcher.transform_query(
+                    {"bill_type": "hr", "limit": 0}
+                ),
+                creds,
+            )
+        )
+
+
+def test_congress_bills_date_window_filters_offline():
+    """start_date/end_date drop bills updated outside the window (client-side)."""
+    from openbb_sugra.models.congress_bills import SugraCongressBillsFetcher
+
+    def _bill(number: str, updated: str) -> dict:
+        return {
+            "congress": 119,
+            "number": number,
+            "type": "HR",
+            "title": f"Bill {number}",
+            "originChamber": "House",
+            "originChamberCode": "H",
+            "url": f"https://api.congress.gov/v3/bill/119/hr/{number}?format=json",
+            "updateDate": updated,
+            "latestAction": None,
+        }
+
+    query = SugraCongressBillsFetcher.transform_query(
+        {"start_date": "2025-01-01", "end_date": "2025-01-31"}
+    )
+    data = [
+        _bill("6", "2025-01-14"),  # inside
+        _bill("7", "2025-02-20"),  # after window
+        _bill("8", "2024-12-30"),  # before window
+    ]
+    rows = SugraCongressBillsFetcher.transform_data(query, data)
+    assert {r.bill_number for r in rows} == {6}
 
 
 # --- BLS-specific regression tests (offline) --------------------------------
