@@ -13,6 +13,7 @@ from openbb_sugra.models.aggressive_small_caps import (
 )
 from openbb_sugra.models.analyst_estimates import SugraAnalystEstimatesFetcher
 from openbb_sugra.models.available_indices import SugraAvailableIndicesFetcher
+from openbb_sugra.models.balance_of_payments import SugraBalanceOfPaymentsFetcher
 from openbb_sugra.models.balance_sheet import SugraBalanceSheetFetcher
 from openbb_sugra.models.bls_search import SugraBlsSearchFetcher
 from openbb_sugra.models.bls_series import SugraBlsSeriesFetcher
@@ -110,6 +111,7 @@ from openbb_sugra.models.undervalued_growth_equities import (
 from openbb_sugra.models.undervalued_large_caps import SugraUndervaluedLargeCapsFetcher
 from openbb_sugra.models.unemployment import SugraUnemploymentFetcher
 from openbb_sugra.models.world_news import SugraWorldNewsFetcher
+from openbb_sugra.models.yield_curve import SugraYieldCurveFetcher
 
 sugra_provider = Provider(
     name="sugra",
@@ -125,6 +127,7 @@ sugra_provider = Provider(
     fetcher_dict={
         "AnalystEstimates": SugraAnalystEstimatesFetcher,
         "AvailableIndices": SugraAvailableIndicesFetcher,
+        "BalanceOfPayments": SugraBalanceOfPaymentsFetcher,
         "BalanceSheet": SugraBalanceSheetFetcher,
         "BlsSearch": SugraBlsSearchFetcher,
         "BlsSeries": SugraBlsSeriesFetcher,
@@ -203,6 +206,7 @@ sugra_provider = Provider(
         "TreasuryAuctions": SugraUSTreasuryAuctionsFetcher,
         "Unemployment": SugraUnemploymentFetcher,
         "WorldNews": SugraWorldNewsFetcher,
+        "YieldCurve": SugraYieldCurveFetcher,
     },
     repr_name="Sugra",
     instructions=(
