@@ -136,3 +136,91 @@ def test_fetcher_returns_live_data(key, fetcher, credentials):
     """Live pre-publish gate: each fetcher returns real data from the Sugra API."""
     result = fetcher.test(PARAMS[key], credentials)
     assert result is None
+
+
+# --- Fama-French-specific regression tests (offline) ------------------------
+
+
+def test_famafrench_to_iso_date_shapes():
+    """Daily (YYYYMMDD), monthly (YYYYMM), and annual (YYYY) periods normalise."""
+    from openbb_sugra.models.famafrench_factors import _to_iso_date
+
+    assert _to_iso_date("20260430") == "2026-04-30"  # daily
+    assert _to_iso_date("202604") == "2026-04-01"  # monthly
+    assert _to_iso_date("2026") == "2026-12-31"  # annual
+
+
+def test_famafrench_gates_raise_for_unserved_inputs():
+    """Non-america regions and unserved factor/frequency combos raise clearly."""
+    import asyncio
+
+    from openbb_core.provider.utils.errors import EmptyDataError
+
+    from openbb_sugra.models.famafrench_factors import SugraFamaFrenchFactorsFetcher
+
+    creds = {"sugra_api_key": "unused"}
+    with pytest.raises(EmptyDataError):
+        asyncio.run(
+            SugraFamaFrenchFactorsFetcher.aextract_data(
+                SugraFamaFrenchFactorsFetcher.transform_query({"region": "europe"}), creds
+            )
+        )
+    with pytest.raises(EmptyDataError):
+        asyncio.run(
+            SugraFamaFrenchFactorsFetcher.aextract_data(
+                SugraFamaFrenchFactorsFetcher.transform_query(
+                    {"factor": "3_factors", "frequency": "annual"}
+                ),
+                creds,
+            )
+        )
+
+
+def test_famafrench_orders_ascending_and_keeps_boundary_month():
+    """Rows sort ascending; a mid-month start_date keeps its (anchored) month."""
+    from datetime import date
+
+    from openbb_sugra.models.famafrench_factors import SugraFamaFrenchFactorsFetcher
+
+    query = SugraFamaFrenchFactorsFetcher.transform_query(
+        {"factor": "3_factors", "frequency": "monthly", "start_date": "2026-02-15"}
+    )
+    # Newest-first, like the Sugra API.
+    data = [
+        {"date": "202604", "Mkt-RF": 1.0, "SMB": 0.1, "HML": 0.2, "RF": 0.0},
+        {"date": "202603", "Mkt-RF": 2.0, "SMB": 0.1, "HML": 0.2, "RF": 0.0},
+        {"date": "202602", "Mkt-RF": 3.0, "SMB": 0.1, "HML": 0.2, "RF": 0.0},
+        {"date": "202601", "Mkt-RF": 4.0, "SMB": 0.1, "HML": 0.2, "RF": 0.0},
+    ]
+    rows = SugraFamaFrenchFactorsFetcher.transform_data(query, data)
+    dates = [r.date for r in rows]
+    assert dates == sorted(dates)  # ascending
+    assert dates[0] == date(2026, 2, 1)  # boundary month kept, January dropped
+
+
+# --- Fama-French-specific regression tests (live) ---------------------------
+
+
+def test_famafrench_momentum_and_daily_live(credentials):
+    """Momentum column maps, daily path works, and history is not truncated to 60."""
+    import asyncio
+
+    from openbb_sugra.models.famafrench_factors import SugraFamaFrenchFactorsFetcher
+
+    mom_q = SugraFamaFrenchFactorsFetcher.transform_query(
+        {"factor": "momentum", "frequency": "monthly"}
+    )
+    mom = SugraFamaFrenchFactorsFetcher.transform_data(
+        mom_q, asyncio.run(SugraFamaFrenchFactorsFetcher.aextract_data(mom_q, credentials))
+    )
+    assert mom and mom[0].mom is not None
+    assert [r.date for r in mom] == sorted(r.date for r in mom)  # ascending
+
+    daily_q = SugraFamaFrenchFactorsFetcher.transform_query(
+        {"factor": "3_factors", "frequency": "daily"}
+    )
+    daily = SugraFamaFrenchFactorsFetcher.transform_data(
+        daily_q,
+        asyncio.run(SugraFamaFrenchFactorsFetcher.aextract_data(daily_q, credentials)),
+    )
+    assert len(daily) > 60  # full history requested, not just the trailing 60

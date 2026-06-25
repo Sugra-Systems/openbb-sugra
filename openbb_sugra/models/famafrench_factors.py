@@ -71,7 +71,12 @@ class SugraFamaFrenchFactorsFetcher(
             )
 
         api_key = get_api_key(credentials)
-        response = await sugra_get(f"/api/v1/fama-french/dataset/{dataset_key}", api_key)
+        # Default response is only the trailing 60 records; request the full
+        # history (the endpoint caps at 1200 - the complete monthly series back
+        # to 1926, ~5y for daily) so a deep start_date is not silently truncated.
+        response = await sugra_get(
+            f"/api/v1/fama-french/dataset/{dataset_key}", api_key, {"limit": 1200}
+        )
         payload = envelope_data(response)
         return payload.get("records", []) if isinstance(payload, dict) else []
 
@@ -81,15 +86,23 @@ class SugraFamaFrenchFactorsFetcher(
         data: list[dict],
         **kwargs: Any,
     ) -> list[FamaFrenchFactorsData]:
-        """Validate and transform into the standard model."""
+        """Validate, transform, window, and order into the standard model."""
         # pylint: disable=import-outside-toplevel
+        from datetime import date as _date
+
         from openbb_core.provider.utils.errors import EmptyDataError
+        from pydantic import ValidationError
 
         if not data:
             raise EmptyDataError("No Fama-French factor records returned.")
 
-        start = str(query.start_date) if query.start_date else None
-        end = str(query.end_date) if query.end_date else None
+        # Compare real dates, not lexical strings. Monthly records are anchored
+        # to the first of the month, so clamp a mid-month start_date down to the
+        # period start - otherwise the boundary month is wrongly dropped.
+        start = query.start_date
+        end = query.end_date
+        if start and query.frequency == "monthly":
+            start = start.replace(day=1)
 
         rows: list[FamaFrenchFactorsData] = []
         for rec in data:
@@ -97,11 +110,20 @@ class SugraFamaFrenchFactorsFetcher(
                 continue
             record = dict(rec)
             iso = _to_iso_date(str(record.pop("date")))
-            if (start and iso < start) or (end and iso > end):
+            try:
+                period = _date.fromisoformat(iso)
+            except ValueError:
+                continue
+            if (start and period < start) or (end and period > end):
                 continue
             record["date"] = iso
-            rows.append(FamaFrenchFactorsData.model_validate(record))
+            try:
+                rows.append(FamaFrenchFactorsData.model_validate(record))
+            except ValidationError:
+                continue
 
         if not rows:
             raise EmptyDataError("No Fama-French factor records matched the query.")
+        # The Sugra API returns newest-first; the standard model orders ascending.
+        rows.sort(key=lambda r: r.date)
         return rows
