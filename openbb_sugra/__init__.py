@@ -14,6 +14,8 @@ from openbb_sugra.models.aggressive_small_caps import (
 from openbb_sugra.models.analyst_estimates import SugraAnalystEstimatesFetcher
 from openbb_sugra.models.available_indices import SugraAvailableIndicesFetcher
 from openbb_sugra.models.balance_sheet import SugraBalanceSheetFetcher
+from openbb_sugra.models.bls_search import SugraBlsSearchFetcher
+from openbb_sugra.models.bls_series import SugraBlsSeriesFetcher
 from openbb_sugra.models.calendar_dividend import SugraCalendarDividendFetcher
 from openbb_sugra.models.calendar_earnings import SugraCalendarEarningsFetcher
 from openbb_sugra.models.calendar_splits import SugraCalendarSplitsFetcher
@@ -119,6 +121,8 @@ sugra_provider = Provider(
         "AnalystEstimates": SugraAnalystEstimatesFetcher,
         "AvailableIndices": SugraAvailableIndicesFetcher,
         "BalanceSheet": SugraBalanceSheetFetcher,
+        "BlsSearch": SugraBlsSearchFetcher,
+        "BlsSeries": SugraBlsSeriesFetcher,
         "COT": SugraCOTFetcher,
         "COTSearch": SugraCotSearchFetcher,
         "CalendarDividend": SugraCalendarDividendFetcher,
