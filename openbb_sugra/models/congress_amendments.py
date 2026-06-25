@@ -10,6 +10,8 @@ from openbb_congress_gov.models.congress_amendments import (
 )
 from openbb_core.provider.abstract.fetcher import Fetcher
 
+from openbb_sugra.models.congress_bills import _within_update_window
+
 
 class SugraCongressAmendmentsFetcher(
     Fetcher[CongressAmendmentsQueryParams, list[CongressAmendmentsData]]
@@ -29,7 +31,21 @@ class SugraCongressAmendmentsFetcher(
     ) -> list[dict]:
         """Return the raw amendment list from the Sugra API."""
         # pylint: disable=import-outside-toplevel
+        from openbb_core.app.model.abstract.error import OpenBBError
+
         from openbb_sugra.utils.helpers import envelope_data, get_api_key, sugra_get
+
+        # The Sugra endpoint cannot honour these, so reject them rather than
+        # silently returning page 1 / a misleading empty result.
+        if query.offset:
+            raise OpenBBError(
+                "The Sugra congress provider does not support offset pagination."
+            )
+        if query.limit == 0:
+            raise OpenBBError(
+                "The Sugra congress provider does not support unbounded fetch "
+                "(limit=0); pass a positive limit (max 250)."
+            )
 
         api_key = get_api_key(credentials)
         params: dict[str, Any] = {}
@@ -49,12 +65,15 @@ class SugraCongressAmendmentsFetcher(
         data: list[dict],
         **kwargs: Any,
     ) -> list[CongressAmendmentsData]:
-        """Validate and transform into the standard model.
+        """Validate, transform, and apply client-side filters.
 
-        Sugra serves the congress.gov amendment shape; filtered responses carry
-        the nested ``latestAction``/``amendedBill``/``sponsors`` objects, so the
-        canonical congress.gov transform maps them faithfully. Per-amendment
-        detail fields that the list view omits stay null, which the model allows.
+        Sugra serves the congress.gov amendment LIST shape (congress, number,
+        type, update date, url); the canonical congress.gov transform maps it,
+        and the per-amendment detail fields (amended_bill, sponsor, purpose,
+        submitted_date) it normally enriches via extra HTTP calls are NOT present
+        in the Sugra list response, so they stay null. The Sugra endpoint also
+        ignores amendment_type and start_date/end_date, so both are applied
+        client-side here (bounded to the fetched page).
         """
         # pylint: disable=import-outside-toplevel
         from openbb_congress_gov.models.congress_amendments import (
@@ -69,4 +88,9 @@ class SugraCongressAmendmentsFetcher(
         for record in data:
             if isinstance(record, dict) and record.get("latestAction") is None:
                 record["latestAction"] = {}
-        return CongressAmendmentsFetcher.transform_data(query, data, **kwargs)
+        rows = CongressAmendmentsFetcher.transform_data(query, data, **kwargs)
+        # The Sugra amendments endpoint ignores the type filter, so apply it here.
+        if query.amendment_type:
+            wanted = query.amendment_type.lower()
+            rows = [r for r in rows if (r.amendment_type or "").lower() == wanted]
+        return _within_update_window(rows, query.start_date, query.end_date)

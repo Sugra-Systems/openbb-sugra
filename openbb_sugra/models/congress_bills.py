@@ -2,6 +2,7 @@
 
 # pylint: disable=unused-argument
 
+from datetime import date as dateType
 from typing import Any
 
 from openbb_congress_gov.models.congress_bills import (
@@ -9,6 +10,30 @@ from openbb_congress_gov.models.congress_bills import (
     CongressBillsQueryParams,
 )
 from openbb_core.provider.abstract.fetcher import Fetcher
+
+
+def _within_update_window(
+    rows: list, start: dateType | None, end: dateType | None
+) -> list:
+    """Keep rows whose ``update_date`` falls in [start, end].
+
+    The Sugra congress endpoint does not filter by date server-side, so the
+    standard model's start_date/end_date ("filter by last updated date") are
+    applied here. Bounds are open-ended when None; a row without an update_date
+    is kept (it cannot be evaluated). Filtering is bounded to the fetched page.
+    """
+    if start is None and end is None:
+        return rows
+    kept = []
+    for row in rows:
+        updated = getattr(row, "update_date", None)
+        if updated is not None:
+            if start is not None and updated < start:
+                continue
+            if end is not None and updated > end:
+                continue
+        kept.append(row)
+    return kept
 
 
 class SugraCongressBillsFetcher(Fetcher[CongressBillsQueryParams, list[CongressBillsData]]):
@@ -27,7 +52,21 @@ class SugraCongressBillsFetcher(Fetcher[CongressBillsQueryParams, list[CongressB
     ) -> list[dict]:
         """Return the raw bill list from the Sugra API."""
         # pylint: disable=import-outside-toplevel
+        from openbb_core.app.model.abstract.error import OpenBBError
+
         from openbb_sugra.utils.helpers import envelope_data, get_api_key, sugra_get
+
+        # The Sugra endpoint cannot honour these, so reject them rather than
+        # silently returning page 1 / a misleading empty result.
+        if query.offset:
+            raise OpenBBError(
+                "The Sugra congress provider does not support offset pagination."
+            )
+        if query.limit == 0:
+            raise OpenBBError(
+                "The Sugra congress provider does not support unbounded fetch "
+                "(limit=0); pass a positive limit (max 250)."
+            )
 
         api_key = get_api_key(credentials)
         params: dict[str, Any] = {}
@@ -47,11 +86,12 @@ class SugraCongressBillsFetcher(Fetcher[CongressBillsQueryParams, list[CongressB
         data: list[dict],
         **kwargs: Any,
     ) -> list[CongressBillsData]:
-        """Validate and transform into the standard model.
+        """Validate, transform, and apply the client-side date window.
 
-        Sugra serves the congress.gov bill shape verbatim (including the nested
-        ``latestAction`` object, present once filters are applied), so the
-        canonical congress.gov transform maps it faithfully with no divergence.
+        Sugra serves the congress.gov bill shape verbatim, so the canonical
+        congress.gov transform maps it faithfully. start_date/end_date are
+        applied client-side (the Sugra endpoint ignores them), bounded to the
+        fetched page.
         """
         # pylint: disable=import-outside-toplevel
         from openbb_congress_gov.models.congress_bills import CongressBillsFetcher
@@ -65,4 +105,5 @@ class SugraCongressBillsFetcher(Fetcher[CongressBillsQueryParams, list[CongressB
         for record in data:
             if isinstance(record, dict) and record.get("latestAction") is None:
                 record["latestAction"] = {}
-        return CongressBillsFetcher.transform_data(query, data, **kwargs)
+        rows = CongressBillsFetcher.transform_data(query, data, **kwargs)
+        return _within_update_window(rows, query.start_date, query.end_date)
