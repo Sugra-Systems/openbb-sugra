@@ -55,7 +55,9 @@ class SugraBlsSearchFetcher(Fetcher[SugraBlsSearchQueryParams, list[SugraBlsSear
         if not data:
             raise EmptyDataError("No BLS catalog returned.")
 
-        term = (query.query or "").lower()
+        # The standard model documents ';' as an AND operator across terms, so a
+        # row must match EVERY term (against the key or the name) to be kept.
+        terms = [t.strip().lower() for t in (query.query or "").split(";") if t.strip()]
         rows: list[SugraBlsSearchData] = []
         for item in data:
             if not isinstance(item, dict):
@@ -66,7 +68,11 @@ class SugraBlsSearchFetcher(Fetcher[SugraBlsSearchQueryParams, list[SugraBlsSear
             name = item.get("name")
             if not key:
                 continue
-            if term and term not in str(key).lower() and term not in str(name or "").lower():
+            haystack_key = str(key).lower()
+            haystack_name = str(name or "").lower()
+            if terms and not all(
+                t in haystack_key or t in haystack_name for t in terms
+            ):
                 continue
             rows.append(
                 SugraBlsSearchData.model_validate(

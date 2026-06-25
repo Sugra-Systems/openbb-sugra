@@ -12,19 +12,32 @@ from openbb_core.provider.standard_models.bls_series import (
 
 
 def _to_iso_date(raw: str) -> str | None:
-    """Normalise a BLS period to an ISO date string.
+    """Normalise a BLS period to an ISO date string, or None if unparseable.
 
-    Sugra returns monthly periods as ``YYYY-MM`` and yearly as ``YYYY``; the
-    standard model's ``date`` field needs a full ISO date, so anchor partial
-    periods to the first day. Full dates pass through unchanged.
+    BLS periods arrive as ``YYYY`` (annual), ``YYYY-MM`` (monthly), or
+    ``YYYY-Q0N`` (quarterly, e.g. the productivity series). Partial periods are
+    anchored to the first day of the period; a quarter maps to the first month
+    of that quarter (Q1->01, Q2->04, Q3->07, Q4->10). An out-of-range month or
+    quarter, or any other shape, returns None so the row is skipped rather than
+    crashing the whole series in pydantic validation.
     """
     raw = (raw or "").strip()
     head = raw[:4]
-    if len(raw) == 4 and head.isascii() and head.isdigit():
+    if not (head.isascii() and head.isdigit()):
+        return None
+    # Annual: YYYY
+    if len(raw) == 4:
         return f"{raw}-01-01"
-    if len(raw) == 7 and head.isascii() and head.isdigit() and raw[5:7].isdigit():
+    # Quarterly: YYYY-Q0N / YYYY-QN
+    if "Q" in raw.upper():
+        qpart = raw.upper().split("Q", 1)[1].strip()
+        if qpart.isascii() and qpart.isdigit() and 1 <= int(qpart) <= 4:
+            return f"{head}-{(int(qpart) - 1) * 3 + 1:02d}-01"
+        return None
+    # Monthly: YYYY-MM
+    if len(raw) == 7 and raw[5:7].isdigit() and 1 <= int(raw[5:7]) <= 12:
         return f"{raw}-01"
-    return raw or None
+    return None
 
 
 class SugraBlsSeriesQueryParams(SeriesQueryParams):
@@ -70,6 +83,7 @@ class SugraBlsSeriesFetcher(Fetcher[SugraBlsSeriesQueryParams, list[SugraBlsSeri
         """Validate and transform into the standard model."""
         # pylint: disable=import-outside-toplevel
         from openbb_core.provider.utils.errors import EmptyDataError
+        from pydantic import ValidationError
 
         observations = (data or {}).get("data") or []
         if not observations:
@@ -89,16 +103,21 @@ class SugraBlsSeriesFetcher(Fetcher[SugraBlsSeriesQueryParams, list[SugraBlsSeri
                 continue
             if (start and iso < start) or (end and iso > end):
                 continue
-            rows.append(
-                SugraBlsSeriesData.model_validate(
-                    {
-                        "date": iso,
-                        "symbol": symbol,
-                        "title": title,
-                        "value": obs.get("value"),
-                    }
+            # A single unparseable observation must degrade to a skipped row,
+            # not abort the whole series.
+            try:
+                rows.append(
+                    SugraBlsSeriesData.model_validate(
+                        {
+                            "date": iso,
+                            "symbol": symbol,
+                            "title": title,
+                            "value": obs.get("value"),
+                        }
+                    )
                 )
-            )
+            except ValidationError:
+                continue
 
         if not rows:
             raise EmptyDataError("No BLS observations matched the query.")
