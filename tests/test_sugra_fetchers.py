@@ -32,6 +32,8 @@ PARAMS: dict[str, dict] = {
     "CommoditySpotPrices": {},
     "CompanyFilings": {"symbol": "AAPL"},
     "CompanyNews": {"symbol": "AAPL"},
+    "CongressAmendments": {"congress": 119, "limit": 5},
+    "CongressBills": {"congress": 119, "limit": 5},
     "ConsumerPriceIndex": {},
     "CryptoHistorical": {"symbol": "BITCOIN"},
     "CryptoSearch": {"query": "bitcoin"},
