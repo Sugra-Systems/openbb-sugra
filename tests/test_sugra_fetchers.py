@@ -482,3 +482,44 @@ def test_treasury_auctions_rejects_page_num_pagination():
     except OpenBBError:
         return
     raise AssertionError("page_num>1 should raise OpenBBError")
+
+
+def test_treasury_auctions_normalizes_security_type_and_flags_all_rejected():
+    """Lowercase security_type from the endpoint is normalized to the model's
+    title-case Literal; if every returned row fails validation the error says so
+    (rather than conflating it with an empty filter match)."""
+    from openbb_core.provider.standard_models.treasury_auctions import (
+        USTreasuryAuctionsQueryParams,
+    )
+    from openbb_core.provider.utils.errors import EmptyDataError
+
+    from openbb_sugra.models.treasury_auctions import SugraUSTreasuryAuctionsFetcher
+
+    # A lowercase security_type would fail the title-case Literal without the
+    # response-side normalization.
+    ok = SugraUSTreasuryAuctionsFetcher.transform_data(
+        USTreasuryAuctionsQueryParams(),
+        [{
+            "cusip": "91282CXX0", "security_type": "note", "security_term": "5-Year",
+            "issue_date": "2026-06-30", "maturity_date": "2031-06-30",
+            "auction_date": "2026-06-24",
+        }],
+    )
+    assert len(ok) == 1 and ok[0].security_type == "Note"
+
+    # Every row present but invalid (malformed issue_date passes the presence
+    # check but fails date coercion) -> distinct validation error, not the
+    # generic "nothing matched the query".
+    try:
+        SugraUSTreasuryAuctionsFetcher.transform_data(
+            USTreasuryAuctionsQueryParams(),
+            [{
+                "cusip": "91282CXX0", "security_type": "Note", "security_term": "5-Year",
+                "issue_date": "not-a-date", "maturity_date": "2031-06-30",
+                "auction_date": "2026-06-24",
+            }],
+        )
+    except EmptyDataError as exc:
+        assert "failed standard-model validation" in str(exc)
+        return
+    raise AssertionError("all-invalid rows should raise EmptyDataError")

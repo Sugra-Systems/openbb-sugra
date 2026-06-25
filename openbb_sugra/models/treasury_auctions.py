@@ -2,6 +2,7 @@
 
 # pylint: disable=unused-argument
 
+import logging
 from typing import Any
 
 from openbb_core.provider.abstract.fetcher import Fetcher
@@ -10,12 +11,23 @@ from openbb_core.provider.standard_models.treasury_auctions import (
     USTreasuryAuctionsQueryParams,
 )
 
-# The standard model's security_type is lowercase; the Sugra endpoint (FiscalData)
-# uses the canonical title/upper case.
+logger = logging.getLogger(__name__)
+
+# The standard model's security_type is a title-case Literal (Bill/Note/...),
+# while the Sugra source (FiscalData) is known to emit lowercase in some places.
+# This map normalises both the request param and the response value to the
+# canonical case so a casing variant never silently fails model validation.
 _SECURITY_TYPE = {
     "bill": "Bill", "note": "Note", "bond": "Bond",
     "cmb": "CMB", "tips": "TIPS", "frn": "FRN",
 }
+
+
+def _normalize_security_type(value: Any) -> Any:
+    """Map an endpoint security_type to the standard model's title-case Literal."""
+    if not isinstance(value, str):
+        return value
+    return _SECURITY_TYPE.get(value.strip().lower(), value)
 
 # Sugra projection field -> standard model field, for the numeric columns that
 # arrive as strings and need float coercion.
@@ -112,6 +124,7 @@ class SugraUSTreasuryAuctionsFetcher(
 
         wanted_cusip = (query.cusip or "").strip().upper() or None
         rows: list[USTreasuryAuctionsData] = []
+        dropped = 0
         for rec in data:
             if not isinstance(rec, dict):
                 continue
@@ -122,6 +135,10 @@ class SugraUSTreasuryAuctionsFetcher(
             mapped: dict[str, Any] = {
                 k: rec[k] for k in _DIRECT if rec.get(k) is not None
             }
+            if "security_type" in mapped:
+                mapped["security_type"] = _normalize_security_type(
+                    mapped["security_type"]
+                )
             for ours, std in _FLOAT_MAP.items():
                 val = _to_float(rec.get(ours))
                 if val is not None:
@@ -133,7 +150,22 @@ class SugraUSTreasuryAuctionsFetcher(
             try:
                 rows.append(USTreasuryAuctionsData.model_validate(mapped))
             except ValidationError:
-                continue
+                dropped += 1
+
+        # Distinguish "returned but every row failed validation" (a likely
+        # upstream schema/shape change) from "returned but nothing matched the
+        # cusip/date filter" - a silent empty result would conflate the two.
+        if not rows and dropped:
+            raise EmptyDataError(
+                f"All {dropped} US Treasury auction record(s) failed standard-model "
+                "validation; the upstream shape may have changed."
+            )
+        if dropped:
+            logger.warning(
+                "Dropped %d US Treasury auction record(s) on standard-model "
+                "validation.",
+                dropped,
+            )
 
         # Client-side auction-date window (the endpoint ignores start/end).
         start, end = query.start_date, query.end_date
