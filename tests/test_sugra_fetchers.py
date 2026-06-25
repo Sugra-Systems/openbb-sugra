@@ -23,6 +23,8 @@ PARAMS: dict[str, dict] = {
     "AnalystEstimates": {"symbol": "AAPL"},
     "AvailableIndices": {},
     "BalanceSheet": {"symbol": "AAPL", "period": "annual"},
+    "BlsSearch": {"query": "cpi"},
+    "BlsSeries": {"symbol": "CPI-ALL"},
     "COT": {"code": "GOLD"},
     "COTSearch": {"query": "gold"},
     "CalendarDividend": {},
