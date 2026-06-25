@@ -1,6 +1,6 @@
 # openbb-sugra coverage
 
-One Sugra API key fulfils 79 OpenBB standard data models across 13 command groups. Install one provider, set one credential, and pull all of the below - instead of wiring many separate provider keys.
+One Sugra API key fulfils 80 OpenBB standard data models across 13 command groups. Install one provider, set one credential, and pull all of the below - instead of wiring many separate provider keys.
 
 | OpenBB command group | What it covers | Models |
 |---|---|---|
@@ -8,7 +8,7 @@ One Sugra API key fulfils 79 OpenBB standard data models across 13 command group
 | economy (15) | Macro, GDP, inflation, employment, money, shipping/ports | obb.economy.cpi, obb.economy.fred_search, obb.economy.fred_series, obb.economy.gdp.nominal, obb.economy.gdp.real, obb.economy.money_measures, obb.economy.pce, obb.economy.shipping.chokepoint_info, obb.economy.shipping.chokepoint_volume, obb.economy.shipping.port_info, obb.economy.shipping.port_volume, obb.economy.survey.bls_search, obb.economy.survey.bls_series, obb.economy.survey.nonfarm_payrolls, obb.economy.unemployment |
 | famafrench (1) | Fama-French academic factor returns | obb.famafrench.factors |
 | etf (5) | ETFs | obb.etf.historical, obb.etf.holdings, obb.etf.info, obb.etf.price_performance, obb.etf.search |
-| currency (3) | Forex | obb.currency.price.historical, obb.currency.search, obb.currency.snapshots |
+| currency (4) | Forex | obb.currency.price.historical, obb.currency.reference_rates, obb.currency.search, obb.currency.snapshots |
 | fixedincome (4) | Rates and fixed income | obb.fixedincome.government.treasury_auctions, obb.fixedincome.rate.effr, obb.fixedincome.rate.sofr, obb.fixedincome.rate.sonia |
 | index (3) | Indices | obb.index.available, obb.index.constituents, obb.index.price.historical |
 | cftc (2) | CFTC Commitment of Traders | obb.cftc.cot, obb.cftc.cot_search |

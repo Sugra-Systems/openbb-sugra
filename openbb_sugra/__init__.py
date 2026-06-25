@@ -32,6 +32,9 @@ from openbb_sugra.models.crypto_historical import SugraCryptoHistoricalFetcher
 from openbb_sugra.models.crypto_search import SugraCryptoSearchFetcher
 from openbb_sugra.models.currency_historical import SugraCurrencyHistoricalFetcher
 from openbb_sugra.models.currency_pairs import SugraCurrencyPairsFetcher
+from openbb_sugra.models.currency_reference_rates import (
+    SugraCurrencyReferenceRatesFetcher,
+)
 from openbb_sugra.models.currency_snapshots import SugraCurrencySnapshotsFetcher
 from openbb_sugra.models.equity_active import SugraEquityActiveFetcher
 from openbb_sugra.models.equity_gainers import SugraEquityGainersFetcher
@@ -141,6 +144,7 @@ sugra_provider = Provider(
         "CryptoSearch": SugraCryptoSearchFetcher,
         "CurrencyHistorical": SugraCurrencyHistoricalFetcher,
         "CurrencyPairs": SugraCurrencyPairsFetcher,
+        "CurrencyReferenceRates": SugraCurrencyReferenceRatesFetcher,
         "CurrencySnapshots": SugraCurrencySnapshotsFetcher,
         "EquityActive": SugraEquityActiveFetcher,
         "EquityAggressiveSmallCaps": SugraEquityAggressiveSmallCapsFetcher,

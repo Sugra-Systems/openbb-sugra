@@ -41,6 +41,7 @@ PARAMS: dict[str, dict] = {
     "CryptoSearch": {"query": "bitcoin"},
     "CurrencyHistorical": {"symbol": "EURUSD"},
     "CurrencyPairs": {},
+    "CurrencyReferenceRates": {},
     "CurrencySnapshots": {},
     "EquityActive": {},
     "EquityAggressiveSmallCaps": {},
@@ -523,3 +524,66 @@ def test_treasury_auctions_normalizes_security_type_and_flags_all_rejected():
         assert "failed standard-model validation" in str(exc)
         return
     raise AssertionError("all-invalid rows should raise EmptyDataError")
+
+
+def test_currency_reference_rates_reshapes_one_wide_row():
+    """The rates map becomes ONE wide row: date + EUR=1.0 + currency columns;
+    unknown currency keys are dropped, not carried."""
+    from openbb_core.provider.standard_models.currency_reference_rates import (
+        CurrencyReferenceRatesQueryParams,
+    )
+
+    from openbb_sugra.models.currency_reference_rates import (
+        SugraCurrencyReferenceRatesFetcher,
+    )
+
+    payload = {
+        "base": "EUR", "date": "2026-06-25",
+        "rates": {"USD": 1.08, "JPY": 168.5, "GBP": 0.862, "ZZZ": 9.9},
+    }
+    rows = SugraCurrencyReferenceRatesFetcher.transform_data(
+        CurrencyReferenceRatesQueryParams(), payload
+    )
+    assert len(rows) == 1
+    r = rows[0]
+    assert str(r.date) == "2026-06-25"
+    assert r.EUR == 1.0
+    assert r.USD == 1.08 and r.JPY == 168.5 and r.GBP == 0.862
+    # ZZZ is not a model field -> dropped, not present as an extra attribute.
+    assert not hasattr(r, "ZZZ")
+
+
+def test_currency_reference_rates_rejects_non_ecb_fallback():
+    """A non-EUR base means the forex feed served a non-ECB fallback; refuse to
+    emit a mislabelled reference-rate row."""
+    from openbb_core.provider.standard_models.currency_reference_rates import (
+        CurrencyReferenceRatesQueryParams,
+    )
+    from openbb_core.provider.utils.errors import EmptyDataError
+
+    from openbb_sugra.models.currency_reference_rates import (
+        SugraCurrencyReferenceRatesFetcher,
+    )
+
+    usd_base = {"base": "USD", "date": "2026-06-25", "rates": {"EUR": 0.92}}
+    try:
+        SugraCurrencyReferenceRatesFetcher.transform_data(
+            CurrencyReferenceRatesQueryParams(), usd_base
+        )
+    except EmptyDataError as exc:
+        assert "non-ECB fallback" in str(exc)
+    else:
+        raise AssertionError("a non-EUR base must raise EmptyDataError")
+
+    # Empty rates and a missing date both raise (the two halves of the guard).
+    for bad in (
+        {"base": "EUR", "date": "2026-06-25", "rates": {}},
+        {"base": "EUR", "date": None, "rates": {"USD": 1.08}},
+    ):
+        try:
+            SugraCurrencyReferenceRatesFetcher.transform_data(
+                CurrencyReferenceRatesQueryParams(), bad
+            )
+        except EmptyDataError:
+            continue
+        raise AssertionError(f"expected EmptyDataError for {bad}")
