@@ -86,3 +86,20 @@ def envelope_data(response: Any) -> Any:
     if isinstance(response, dict) and "data" in response:
         return response["data"]
     return response
+
+
+def kf_period_to_iso(raw: str) -> str:
+    """Normalise a Ken French period token to an ISO date (YYYY-MM-DD).
+
+    The Sugra Fama-French endpoints return the raw upstream period token:
+    YYYYMMDD (daily) / YYYYMM (monthly) / YYYY (annual). Returns the input
+    unchanged when it is not one of those widths.
+    """
+    raw = (raw or "").strip()
+    if len(raw) == 8:
+        return f"{raw[:4]}-{raw[4:6]}-{raw[6:8]}"
+    if len(raw) == 6:
+        return f"{raw[:4]}-{raw[4:6]}-01"
+    if len(raw) == 4:
+        return f"{raw}-12-31"
+    return raw
