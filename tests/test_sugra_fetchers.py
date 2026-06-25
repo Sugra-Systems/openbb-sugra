@@ -22,6 +22,7 @@ from openbb_sugra import sugra_provider
 PARAMS: dict[str, dict] = {
     "AnalystEstimates": {"symbol": "AAPL"},
     "AvailableIndices": {},
+    "BalanceOfPayments": {"report_type": "main"},
     "BalanceSheet": {"symbol": "AAPL", "period": "annual"},
     "BlsSearch": {"query": "cpi"},
     "BlsSeries": {"symbol": "CPI-ALL"},
@@ -100,6 +101,7 @@ PARAMS: dict[str, dict] = {
     "TreasuryAuctions": {"security_type": "note", "page_size": 10},
     "Unemployment": {},
     "WorldNews": {},
+    "YieldCurve": {},
 }
 
 FETCHERS = sorted(sugra_provider.fetcher_dict.items())
@@ -587,3 +589,143 @@ def test_currency_reference_rates_rejects_non_ecb_fallback():
         except EmptyDataError:
             continue
         raise AssertionError(f"expected EmptyDataError for {bad}")
+
+
+def test_yield_curve_validates_per_maturity_rows():
+    """Per-maturity rows validate; maturity_years computes from year_N/month_N."""
+    from openbb_sugra.models.yield_curve import (
+        SugraYieldCurveFetcher,
+        SugraYieldCurveQueryParams,
+    )
+
+    payload = {
+        "date": "2026-06-24",
+        "rates": [
+            {"date": "2026-06-24", "maturity": "month_3", "rate": 0.0226},
+            {"date": "2026-06-24", "maturity": "year_10", "rate": 0.0294},
+        ],
+    }
+    rows = SugraYieldCurveFetcher.transform_data(
+        SugraYieldCurveQueryParams(), payload
+    )
+    assert len(rows) == 2
+    by_mat = {r.maturity: r for r in rows}
+    assert by_mat["year_10"].rate == 0.0294
+    assert by_mat["year_10"].maturity_years == 10.0
+    assert by_mat["month_3"].maturity_years == pytest.approx(0.25)
+
+
+def test_yield_curve_empty_raises():
+    from openbb_core.provider.utils.errors import EmptyDataError
+
+    from openbb_sugra.models.yield_curve import (
+        SugraYieldCurveFetcher,
+        SugraYieldCurveQueryParams,
+    )
+
+    try:
+        SugraYieldCurveFetcher.transform_data(
+            SugraYieldCurveQueryParams(), {"rates": []}
+        )
+    except EmptyDataError:
+        return
+    raise AssertionError("empty rates must raise EmptyDataError")
+
+
+def test_balance_of_payments_coerces_period_and_validates():
+    """Wide rows validate into the merged model; ECB period -> quarter/month-start date."""
+    from datetime import date
+
+    from openbb_sugra.models.balance_of_payments import (
+        SugraBalanceOfPaymentsFetcher,
+        SugraBalanceOfPaymentsQueryParams,
+    )
+
+    monthly = {
+        "report_type": "main",
+        "data": [
+            {"period": "2024-03", "current_account": 39.88, "goods": 36.31,
+             "errors_and_omissions": 1.2},
+        ],
+    }
+    rows = SugraBalanceOfPaymentsFetcher.transform_data(
+        SugraBalanceOfPaymentsQueryParams(report_type="main"), monthly
+    )
+    assert len(rows) == 1
+    assert rows[0].period == date(2024, 3, 1)
+    assert rows[0].current_account == 39.88
+
+    quarterly = {
+        "report_type": "country",
+        "data": [{"period": "2024-Q2", "current_account_balance": -1.02}],
+    }
+    qrows = SugraBalanceOfPaymentsFetcher.transform_data(
+        SugraBalanceOfPaymentsQueryParams(report_type="country", country="united_states"),
+        quarterly,
+    )
+    assert qrows[0].period == date(2024, 4, 1)
+    assert qrows[0].current_account_balance == -1.02
+
+
+def test_balance_of_payments_empty_raises():
+    from openbb_core.provider.utils.errors import EmptyDataError
+
+    from openbb_sugra.models.balance_of_payments import (
+        SugraBalanceOfPaymentsFetcher,
+        SugraBalanceOfPaymentsQueryParams,
+    )
+
+    try:
+        SugraBalanceOfPaymentsFetcher.transform_data(
+            SugraBalanceOfPaymentsQueryParams(), {"data": []}
+        )
+    except EmptyDataError:
+        return
+    raise AssertionError("empty data must raise EmptyDataError")
+
+
+def test_yield_curve_drops_bad_row_keeps_good():
+    """A single malformed maturity is dropped, not fatal to the whole curve."""
+    from openbb_sugra.models.yield_curve import (
+        SugraYieldCurveFetcher,
+        SugraYieldCurveQueryParams,
+    )
+
+    payload = {"rates": [
+        {"date": "2026-06-24", "maturity": "year_10", "rate": 0.0294},
+        {"date": "2026-06-24", "maturity": "year_5", "rate": "not-a-number"},
+    ]}
+    rows = SugraYieldCurveFetcher.transform_data(
+        SugraYieldCurveQueryParams(), payload
+    )
+    assert len(rows) == 1 and rows[0].maturity == "year_10"
+
+
+def test_balance_of_payments_period_bounds_and_drop():
+    """_period_to_date rejects out-of-range months/quarters; an all-bad batch
+    raises the distinct validation error, not a raw ValidationError."""
+    from openbb_core.provider.utils.errors import EmptyDataError
+
+    from openbb_sugra.models.balance_of_payments import (
+        SugraBalanceOfPaymentsFetcher,
+        SugraBalanceOfPaymentsQueryParams,
+        _period_to_date,
+    )
+
+    assert _period_to_date("2024-03") == "2024-03-01"
+    assert _period_to_date("2024-Q3") == "2024-07-01"
+    assert _period_to_date("2024") == "2024-01-01"
+    for bad in ("2024-13", "2024-00", "2024-Q5", "garbage", "g-03", ""):
+        assert _period_to_date(bad) is None, bad
+
+    # A row whose period cannot form a date is dropped (period None still
+    # validates, so it survives) - use a hard validation failure instead.
+    only_bad = {"data": [{"period": "2024-03", "current_account": "not-a-number"}]}
+    try:
+        SugraBalanceOfPaymentsFetcher.transform_data(
+            SugraBalanceOfPaymentsQueryParams(), only_bad
+        )
+    except EmptyDataError as exc:
+        assert "failed standard-model validation" in str(exc)
+        return
+    raise AssertionError("an all-invalid batch must raise EmptyDataError")
