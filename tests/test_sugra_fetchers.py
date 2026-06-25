@@ -23,6 +23,8 @@ PARAMS: dict[str, dict] = {
     "AnalystEstimates": {"symbol": "AAPL"},
     "AvailableIndices": {},
     "BalanceSheet": {"symbol": "AAPL", "period": "annual"},
+    "BlsSearch": {"query": "cpi"},
+    "BlsSeries": {"symbol": "CPI-ALL"},
     "COT": {"code": "GOLD"},
     "COTSearch": {"query": "gold"},
     "CalendarDividend": {},
@@ -135,3 +137,64 @@ def test_fetcher_returns_live_data(key, fetcher, credentials):
     """Live pre-publish gate: each fetcher returns real data from the Sugra API."""
     result = fetcher.test(PARAMS[key], credentials)
     assert result is None
+
+
+# --- BLS-specific regression tests (offline) --------------------------------
+
+
+def test_bls_to_iso_date_handles_every_period_shape():
+    """Annual, monthly, and quarterly periods normalise; bad ones are skipped."""
+    from openbb_sugra.models.bls_series import _to_iso_date
+
+    assert _to_iso_date("2026-05") == "2026-05-01"  # monthly
+    assert _to_iso_date("2026") == "2026-01-01"  # annual
+    assert _to_iso_date("2026-Q01") == "2026-01-01"  # quarter 1
+    assert _to_iso_date("2025-Q04") == "2025-10-01"  # quarter 4
+    assert _to_iso_date("2026-Q2") == "2026-04-01"  # short-form quarter
+    assert _to_iso_date("2026-13") is None  # out-of-range month
+    assert _to_iso_date("2026-Q05") is None  # out-of-range quarter
+    assert _to_iso_date("not-a-date") is None
+
+
+def test_bls_search_semicolon_is_an_and_operator():
+    """';' splits into terms that must ALL match (key or name), not a literal."""
+    from openbb_sugra.models.bls_search import (
+        SugraBlsSearchFetcher,
+        SugraBlsSearchQueryParams,
+    )
+
+    catalog = [
+        {"key": "cpi-all", "name": "CPI All Urban Consumers"},
+        {"key": "cpi-core", "name": "CPI Core"},
+        {"key": "unemployment", "name": "Unemployment Rate"},
+    ]
+    rows = SugraBlsSearchFetcher.transform_data(
+        SugraBlsSearchQueryParams(query="cpi;urban"), catalog
+    )
+    assert {r.symbol for r in rows} == {"cpi-all"}
+
+
+# --- BLS-specific regression tests (live) -----------------------------------
+
+
+def test_bls_series_quarterly_productivity(credentials):
+    """The quarterly 'productivity' series (YYYY-Q0N dates) must not crash."""
+    from openbb_sugra.models.bls_series import SugraBlsSeriesFetcher
+
+    assert SugraBlsSeriesFetcher.test({"symbol": "PRODUCTIVITY"}, credentials) is None
+
+
+def test_bls_series_date_window_is_honored(credentials):
+    """start_date/end_date bound the returned observations (client-side filter)."""
+    import asyncio
+    from datetime import date
+
+    from openbb_sugra.models.bls_series import SugraBlsSeriesFetcher
+
+    query = SugraBlsSeriesFetcher.transform_query(
+        {"symbol": "CPI-ALL", "start_date": "2025-01-01", "end_date": "2025-06-30"}
+    )
+    data = asyncio.run(SugraBlsSeriesFetcher.aextract_data(query, credentials))
+    rows = SugraBlsSeriesFetcher.transform_data(query, data)
+    assert rows
+    assert all(date(2025, 1, 1) <= row.date <= date(2025, 6, 30) for row in rows)
