@@ -51,7 +51,16 @@ from openbb_sugra.models.etf_holdings import SugraEtfHoldingsFetcher
 from openbb_sugra.models.etf_info import SugraEtfInfoFetcher
 from openbb_sugra.models.etf_price_performance import SugraEtfPricePerformanceFetcher
 from openbb_sugra.models.etf_search import SugraEtfSearchFetcher
+from openbb_sugra.models.famafrench_breakpoints import (
+    SugraFamaFrenchBreakpointFetcher,
+)
 from openbb_sugra.models.famafrench_factors import SugraFamaFrenchFactorsFetcher
+from openbb_sugra.models.famafrench_regional_portfolio_returns import (
+    SugraFamaFrenchRegionalPortfolioReturnsFetcher,
+)
+from openbb_sugra.models.famafrench_us_portfolio_returns import (
+    SugraFamaFrenchUSPortfolioReturnsFetcher,
+)
 from openbb_sugra.models.federal_funds_rate import SugraFederalFundsRateFetcher
 from openbb_sugra.models.financial_ratios import SugraFinancialRatiosFetcher
 from openbb_sugra.models.form_13FHR import SugraForm13FHRFetcher
@@ -166,7 +175,10 @@ sugra_provider = Provider(
         "EtfInfo": SugraEtfInfoFetcher,
         "EtfPricePerformance": SugraEtfPricePerformanceFetcher,
         "EtfSearch": SugraEtfSearchFetcher,
+        "FamaFrenchBreakpoints": SugraFamaFrenchBreakpointFetcher,
         "FamaFrenchFactors": SugraFamaFrenchFactorsFetcher,
+        "FamaFrenchRegionalPortfolioReturns": SugraFamaFrenchRegionalPortfolioReturnsFetcher,
+        "FamaFrenchUSPortfolioReturns": SugraFamaFrenchUSPortfolioReturnsFetcher,
         "FederalFundsRate": SugraFederalFundsRateFetcher,
         "FinancialRatios": SugraFinancialRatiosFetcher,
         "Form13FHR": SugraForm13FHRFetcher,

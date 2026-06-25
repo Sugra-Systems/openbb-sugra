@@ -61,7 +61,10 @@ PARAMS: dict[str, dict] = {
     "EtfInfo": {"symbol": "SPY"},
     "EtfPricePerformance": {"symbol": "SPY"},
     "EtfSearch": {"query": "SPY"},
+    "FamaFrenchBreakpoints": {"breakpoint_type": "me"},
     "FamaFrenchFactors": {},
+    "FamaFrenchRegionalPortfolioReturns": {"portfolio": "developed_6_portfolios_me_be-me"},
+    "FamaFrenchUSPortfolioReturns": {"portfolio": "portfolios_formed_on_me"},
     "FederalFundsRate": {},
     "FinancialRatios": {"symbol": "AAPL"},
     "Form13FHR": {"symbol": "0001067983"},
@@ -391,6 +394,83 @@ def test_famafrench_momentum_and_daily_live(credentials):
         asyncio.run(SugraFamaFrenchFactorsFetcher.aextract_data(daily_q, credentials)),
     )
     assert len(daily) > 60  # full history requested, not just the trailing 60
+
+
+# --- Fama-French portfolios / breakpoints (DATA-17.10) ---------------------
+
+def test_us_portfolio_melts_wide_records_to_long():
+    """The Sugra API returns wide records (one column per formation); the fetcher
+    melts them to the standard long (date, portfolio, measure, value) shape,
+    orders ascending, and echoes the queried measure."""
+    from openbb_sugra.models.famafrench_us_portfolio_returns import (
+        SugraFamaFrenchUSPortfolioReturnsFetcher,
+    )
+
+    query = SugraFamaFrenchUSPortfolioReturnsFetcher.transform_query(
+        {"portfolio": "portfolios_formed_on_me", "measure": "value"}
+    )
+    # Newest-first wide records, as the Sugra API serves them.
+    data = [
+        {"date": "192608", "Lo 30": 3.0, "Hi 30": 4.0},
+        {"date": "192607", "Lo 30": 1.0, "Hi 30": 2.0},
+    ]
+    rows = SugraFamaFrenchUSPortfolioReturnsFetcher.transform_data(query, data)
+    assert len(rows) == 4  # 2 periods x 2 formations
+    # ascending by (date, portfolio)
+    assert [(str(r.date), r.portfolio, r.value) for r in rows] == [
+        ("1926-07-01", "Hi 30", 2.0),
+        ("1926-07-01", "Lo 30", 1.0),
+        ("1926-08-01", "Hi 30", 4.0),
+        ("1926-08-01", "Lo 30", 3.0),
+    ]
+    assert all(r.measure == "value" for r in rows)
+
+
+def test_us_portfolio_windows_by_date_and_skips_none_cells():
+    from openbb_sugra.models.famafrench_us_portfolio_returns import (
+        SugraFamaFrenchUSPortfolioReturnsFetcher,
+    )
+
+    query = SugraFamaFrenchUSPortfolioReturnsFetcher.transform_query(
+        {"portfolio": "portfolios_formed_on_me", "measure": "value",
+         "start_date": "1926-08-01"}
+    )
+    data = [
+        {"date": "192608", "Lo 30": 3.0, "Hi 30": None},  # None cell dropped
+        {"date": "192607", "Lo 30": 1.0, "Hi 30": 2.0},   # before start -> dropped
+    ]
+    rows = SugraFamaFrenchUSPortfolioReturnsFetcher.transform_data(query, data)
+    assert [(str(r.date), r.portfolio) for r in rows] == [("1926-08-01", "Lo 30")]
+
+
+def test_breakpoint_date_anchors_to_month_end():
+    """Monthly breakpoint tokens anchor to MONTH END (matching the upstream
+    provider), annual ratio tokens to year end."""
+    from openbb_sugra.models.famafrench_breakpoints import _breakpoint_date_to_iso
+
+    assert _breakpoint_date_to_iso("202602") == "2026-02-28"
+    assert _breakpoint_date_to_iso("202604") == "2026-04-30"
+    assert _breakpoint_date_to_iso("202612") == "2026-12-31"
+    assert _breakpoint_date_to_iso("2025") == "2025-12-31"
+
+
+def test_breakpoints_validate_ratio_two_count_columns():
+    from openbb_sugra.models.famafrench_breakpoints import (
+        SugraFamaFrenchBreakpointFetcher,
+    )
+
+    query = SugraFamaFrenchBreakpointFetcher.transform_query(
+        {"breakpoint_type": "be-me"}
+    )
+    pcts = {f"percentile_{p}": float(p) for p in range(5, 101, 5)}
+    data = [{"date": "1927", "num_firms_less_than_0": 1,
+             "num_firms_greater_than_0": 464, **pcts}]
+    rows = SugraFamaFrenchBreakpointFetcher.transform_data(query, data)
+    assert len(rows) == 1
+    assert str(rows[0].date) == "1927-12-31"
+    assert rows[0].num_firms_less_than_0 == 1
+    assert rows[0].num_firms_greater_than_0 == 464
+    assert rows[0].num_firms is None
 
 
 # --- Treasury auctions (DATA-17.8) ----------------------------------------
