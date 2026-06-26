@@ -62,7 +62,9 @@ PARAMS: dict[str, dict] = {
     "EtfPricePerformance": {"symbol": "SPY"},
     "EtfSearch": {"query": "SPY"},
     "FamaFrenchBreakpoints": {"breakpoint_type": "me"},
+    "FamaFrenchCountryPortfolioReturns": {"country": "united_kingdom"},
     "FamaFrenchFactors": {},
+    "FamaFrenchInternationalIndexReturns": {"index": "all"},
     "FamaFrenchRegionalPortfolioReturns": {"portfolio": "developed_6_portfolios_me_be-me"},
     "FamaFrenchUSPortfolioReturns": {"portfolio": "portfolios_formed_on_me"},
     "FederalFundsRate": {},
@@ -471,6 +473,82 @@ def test_breakpoints_validate_ratio_two_count_columns():
     assert rows[0].num_firms_less_than_0 == 1
     assert rows[0].num_firms_greater_than_0 == 464
     assert rows[0].num_firms is None
+
+
+# --- Fama-French international country / index (DATA-17.10.1) ---------------
+
+def test_country_portfolio_validates_flat_records_one_row_per_period():
+    """The Sugra API returns flat snake-cased records (one per period); the country
+    fetcher validates each directly into the model (no melt), normalises the period
+    token to month-start, and orders ascending."""
+    from openbb_sugra.models.famafrench_country_portfolio_returns import (
+        SugraFamaFrenchCountryPortfolioReturnsFetcher,
+    )
+
+    query = SugraFamaFrenchCountryPortfolioReturnsFetcher.transform_query(
+        {"country": "united_kingdom", "measure": "usd"}
+    )
+    # Newest-first wide records, as the Sugra API serves them.
+    data = [
+        {"date": "197502", "mkt": 11.0, "be_me_high": 12.0, "yld_low": 19.0},
+        {"date": "197501", "mkt": 1.0, "be_me_high": 2.0, "yld_low": 9.0},
+    ]
+    rows = SugraFamaFrenchCountryPortfolioReturnsFetcher.transform_data(query, data)
+    assert [(str(r.date), r.mkt, r.be_me_high) for r in rows] == [
+        ("1975-01-01", 1.0, 2.0),
+        ("1975-02-01", 11.0, 12.0),
+    ]
+
+
+def test_country_portfolio_ratios_keep_int_firms_and_window():
+    from openbb_sugra.models.famafrench_country_portfolio_returns import (
+        SugraFamaFrenchCountryPortfolioReturnsFetcher,
+    )
+
+    query = SugraFamaFrenchCountryPortfolioReturnsFetcher.transform_query(
+        {"country": "united_kingdom", "measure": "ratios", "start_date": "1976-01-01"}
+    )
+    data = [
+        {"date": "1976", "firms": 200, "bm": 1.5, "ep": 1.6},
+        {"date": "1975", "firms": 100, "bm": 0.5, "ep": 0.6},  # before start -> dropped
+    ]
+    rows = SugraFamaFrenchCountryPortfolioReturnsFetcher.transform_data(query, data)
+    assert len(rows) == 1
+    assert str(rows[0].date) == "1976-12-31"
+    assert rows[0].firms == 200 and isinstance(rows[0].firms, int)
+
+
+def test_country_portfolio_empty_raises():
+    from openbb_core.provider.utils.errors import EmptyDataError
+
+    from openbb_sugra.models.famafrench_country_portfolio_returns import (
+        SugraFamaFrenchCountryPortfolioReturnsFetcher,
+    )
+
+    query = SugraFamaFrenchCountryPortfolioReturnsFetcher.transform_query(
+        {"country": "united_kingdom"}
+    )
+    with pytest.raises(EmptyDataError):
+        SugraFamaFrenchCountryPortfolioReturnsFetcher.transform_data(query, [])
+
+
+def test_international_index_validates_flat_records():
+    from openbb_sugra.models.famafrench_international_index_returns import (
+        SugraFamaFrenchInternationalIndexReturnsFetcher,
+    )
+
+    query = SugraFamaFrenchInternationalIndexReturnsFetcher.transform_query(
+        {"index": "all", "measure": "usd"}
+    )
+    data = [
+        {"date": "197502", "mkt": 11.0, "be_me_low": 13.0},
+        {"date": "197501", "mkt": 1.0, "be_me_low": 3.0},
+    ]
+    rows = SugraFamaFrenchInternationalIndexReturnsFetcher.transform_data(query, data)
+    assert [(str(r.date), r.mkt) for r in rows] == [
+        ("1975-01-01", 1.0),
+        ("1975-02-01", 11.0),
+    ]
 
 
 # --- Treasury auctions (DATA-17.8) ----------------------------------------
