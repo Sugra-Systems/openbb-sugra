@@ -36,6 +36,7 @@ PARAMS: dict[str, dict] = {
     "CompanyFilings": {"symbol": "AAPL"},
     "CompanyNews": {"symbol": "AAPL"},
     "CongressAmendments": {"congress": 119, "limit": 5},
+    "CongressBillInfo": {"bill_url": "119/hr/1"},
     "CongressBills": {"congress": 119, "limit": 5},
     "ConsumerPriceIndex": {},
     "CryptoHistorical": {"symbol": "BITCOIN"},
@@ -192,6 +193,51 @@ def test_congress_amendment_type_filter_drops_other_types():
     ]
     rows = SugraCongressAmendmentsFetcher.transform_data(query, data)
     assert {r.amendment_type for r in rows} == {"SAMDT"}
+
+
+def test_congress_bill_info_parses_bill_ref_forms():
+    """bill_url accepts a bare ref, a leading-slashed ref, and a full URL."""
+    from openbb_sugra.models.congress_bill_info import _parse_bill_ref
+
+    assert _parse_bill_ref("119/hr/1") == (119, "hr", "1")
+    assert _parse_bill_ref("/119/s/1") == (119, "s", "1")
+    assert _parse_bill_ref("118/HR/3684") == (118, "hr", "3684")
+    assert _parse_bill_ref(
+        "https://api.congress.gov/v3/bill/119/s/1947?format=json"
+    ) == (119, "s", "1947")
+
+
+def test_congress_bill_info_rejects_unparseable_ref():
+    """A ref without congress/type/number raises rather than guessing."""
+    from openbb_core.app.model.abstract.error import OpenBBError
+
+    from openbb_sugra.models.congress_bill_info import _parse_bill_ref
+
+    with pytest.raises(OpenBBError):
+        _parse_bill_ref("not-a-bill")
+
+
+def test_congress_bill_info_transform_builds_markdown():
+    """A spliced bill (sub-resources already inlined) renders the canonical markdown."""
+    from openbb_sugra.models.congress_bill_info import SugraCongressBillInfoFetcher
+
+    query = SugraCongressBillInfoFetcher.transform_query({"bill_url": "119/hr/1"})
+    bill = {
+        "congress": 119, "number": "1", "type": "HR", "title": "Test Act",
+        "originChamber": "House", "introducedDate": "2025-01-03",
+        "updateDate": "2025-02-01",
+        "latestAction": {"actionDate": "2025-02-01", "text": "Referred"},
+        "sponsors": [{"fullName": "Rep. Example"}],
+        "actions": [{"actionDate": "2025-01-03", "text": "Introduced", "type": "IntroReferral"}],
+        "subjects": [{"name": "Health"}],
+        "relatedBills": [{"congress": 119, "type": "S", "number": 9, "title": "Companion"}],
+    }
+    out = SugraCongressBillInfoFetcher.transform_data(query, bill)
+    assert out.markdown_content.startswith("## Test Act")
+    assert "### Actions" in out.markdown_content
+    assert "### Subjects" in out.markdown_content
+    assert "### Related Bills" in out.markdown_content
+    assert out.raw_data["title"] == "Test Act"
 
 
 def test_congress_rejects_offset_and_unbounded_limit():
