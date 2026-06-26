@@ -38,7 +38,7 @@ GROUP_DESC = {
     "commodity": "Commodities and energy",
     "crypto": "Crypto",
     "news": "News",
-    "uscongress": "US Congress bills and amendments",
+    "uscongress": "US Congress bills, amendments, and committees",
     "derivatives": "Options",
 }
 

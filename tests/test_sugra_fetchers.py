@@ -39,6 +39,7 @@ PARAMS: dict[str, dict] = {
     "CongressAmendments": {"congress": 119, "limit": 5},
     "CongressBillInfo": {"bill_url": "119/hr/1"},
     "CongressBills": {"congress": 119, "limit": 5},
+    "CongressCommitteeInfo": {"chamber": "senate", "committee": "ssas00"},
     "ConsumerPriceIndex": {},
     "CryptoHistorical": {"symbol": "BITCOIN"},
     "CryptoSearch": {"query": "bitcoin"},
@@ -279,6 +280,49 @@ def test_congress_amendment_info_transform_builds_markdown():
     assert "### Amended Bill" in out.markdown_content
     assert "### Actions" in out.markdown_content
     assert out.raw_data["number"] == "1052"
+
+
+def test_congress_committee_info_transform_builds_markdown():
+    """A combined committee (detail + roster) renders the canonical markdown.
+
+    The Sugra committee endpoint joins congress.gov detail with the @unitedstates
+    roster server-side, so the fetcher receives the same {chamber, system_code,
+    detail, members} shape the standard provider assembles and the chair/ranking
+    ordering applies.
+    """
+    from openbb_sugra.models.congress_committee_info import (
+        SugraCongressCommitteeInfoFetcher,
+    )
+
+    query = SugraCongressCommitteeInfoFetcher.transform_query(
+        {"chamber": "senate", "committee": "ssas00"}
+    )
+    committee = {
+        "chamber": "senate",
+        "system_code": "ssas00",
+        "detail": {
+            "type": "Standing",
+            "isCurrent": True,
+            "updateDate": "2025-02-01T00:00:00Z",
+            "committeeWebsiteUrl": "https://www.armed-services.senate.gov",
+            "history": [{"officialName": "Committee on Armed Services", "startDate": "1947-01-01"}],
+            "subcommittees": [{"name": "Subcommittee on Airland", "systemCode": "ssas13"}],
+            "reports": {"count": 42},
+        },
+        "members": [
+            {"name": "Sen. Rank", "party": "minority", "title": "Ranking Member"},
+            {"name": "Sen. Chair", "party": "majority", "title": "Chairman"},
+            {"name": "Sen. Plain", "party": "majority", "title": ""},
+        ],
+    }
+    out = SugraCongressCommitteeInfoFetcher.transform_data(query, committee)
+    md = out.markdown_content
+    assert md.startswith("# Committee on Armed Services")
+    assert "## Members (3)" in md
+    assert "## Subcommittees (1)" in md
+    # chair sorts ahead of ranking, which sorts ahead of the plain member
+    assert md.index("Sen. Chair") < md.index("Sen. Rank") < md.index("Sen. Plain")
+    assert out.raw_data["system_code"] == "ssas00"
 
 
 def test_congress_rejects_offset_and_unbounded_limit():
