@@ -51,7 +51,7 @@ class SugraCongressCommitteeInfoFetcher(
             api_key,
         )
         committee = envelope_data(response)
-        if not isinstance(committee, dict) or not committee.get("detail"):
+        if not isinstance(committee, dict) or not committee:
             raise EmptyDataError(
                 f"No committee found for {chamber}/{system_code}."
             )
