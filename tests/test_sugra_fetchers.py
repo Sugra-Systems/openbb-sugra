@@ -35,6 +35,7 @@ PARAMS: dict[str, dict] = {
     "CommoditySpotPrices": {},
     "CompanyFilings": {"symbol": "AAPL"},
     "CompanyNews": {"symbol": "AAPL"},
+    "CongressAmendmentInfo": {"amendment_url": "118/samdt/1052"},
     "CongressAmendments": {"congress": 119, "limit": 5},
     "CongressBillInfo": {"bill_url": "119/hr/1"},
     "CongressBills": {"congress": 119, "limit": 5},
@@ -238,6 +239,46 @@ def test_congress_bill_info_transform_builds_markdown():
     assert "### Subjects" in out.markdown_content
     assert "### Related Bills" in out.markdown_content
     assert out.raw_data["title"] == "Test Act"
+
+
+def test_congress_amendment_info_parses_ref_forms():
+    """amendment_url accepts a bare ref, a leading-slashed ref, and a full URL."""
+    from openbb_sugra.models.congress_amendment_info import _parse_amendment_ref
+
+    assert _parse_amendment_ref("119/hamdt/2") == (119, "hamdt", "2")
+    assert _parse_amendment_ref("/118/samdt/1052") == (118, "samdt", "1052")
+    assert _parse_amendment_ref(
+        "https://api.congress.gov/v3/amendment/119/hamdt/2?format=json"
+    ) == (119, "hamdt", "2")
+
+
+def test_congress_amendment_info_rejects_unparseable_ref():
+    """A ref without congress/type/number raises rather than guessing."""
+    from openbb_core.app.model.abstract.error import OpenBBError
+
+    from openbb_sugra.models.congress_amendment_info import _parse_amendment_ref
+
+    with pytest.raises(OpenBBError):
+        _parse_amendment_ref("not-an-amendment")
+
+
+def test_congress_amendment_info_transform_builds_markdown():
+    """A spliced amendment (sub-resources already inlined) renders the canonical markdown."""
+    from openbb_sugra.models.congress_amendment_info import SugraCongressAmendmentInfoFetcher
+
+    query = SugraCongressAmendmentInfoFetcher.transform_query({"amendment_url": "118/samdt/1052"})
+    amendment = {
+        "congress": 118, "number": "1052", "type": "SAMDT",
+        "description": "An amendment to strike a section.", "updateDate": "2024-01-15",
+        "amendedBill": {"congress": 118, "type": "S", "number": "1", "title": "A Bill"},
+        "sponsors": [{"fullName": "Sen. Example"}],
+        "actions": [{"actionDate": "2024-01-10", "text": "Submitted", "type": "Floor"}],
+        "cosponsors": [{"fullName": "Sen. Two"}],
+    }
+    out = SugraCongressAmendmentInfoFetcher.transform_data(query, amendment)
+    assert "### Amended Bill" in out.markdown_content
+    assert "### Actions" in out.markdown_content
+    assert out.raw_data["number"] == "1052"
 
 
 def test_congress_rejects_offset_and_unbounded_limit():

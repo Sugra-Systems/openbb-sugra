@@ -24,6 +24,7 @@ from openbb_sugra.models.cash_flow import SugraCashFlowStatementFetcher
 from openbb_sugra.models.commodity_spot_prices import SugraCommoditySpotPricesFetcher
 from openbb_sugra.models.company_filings import SugraCompanyFilingsFetcher
 from openbb_sugra.models.company_news import SugraCompanyNewsFetcher
+from openbb_sugra.models.congress_amendment_info import SugraCongressAmendmentInfoFetcher
 from openbb_sugra.models.congress_amendments import SugraCongressAmendmentsFetcher
 from openbb_sugra.models.congress_bill_info import SugraCongressBillInfoFetcher
 from openbb_sugra.models.congress_bills import SugraCongressBillsFetcher
@@ -156,6 +157,7 @@ sugra_provider = Provider(
         "CommoditySpotPrices": SugraCommoditySpotPricesFetcher,
         "CompanyFilings": SugraCompanyFilingsFetcher,
         "CompanyNews": SugraCompanyNewsFetcher,
+        "CongressAmendmentInfo": SugraCongressAmendmentInfoFetcher,
         "CongressAmendments": SugraCongressAmendmentsFetcher,
         "CongressBillInfo": SugraCongressBillInfoFetcher,
         "CongressBills": SugraCongressBillsFetcher,
