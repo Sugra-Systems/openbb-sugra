@@ -1,6 +1,6 @@
 # openbb-sugra coverage
 
-One Sugra API key fulfils 88 OpenBB standard data models across 13 command groups. Install one provider, set one credential, and pull all of the below - instead of wiring many separate provider keys.
+One Sugra API key fulfils 89 OpenBB standard data models across 13 command groups. Install one provider, set one credential, and pull all of the below - instead of wiring many separate provider keys.
 
 | OpenBB command group | What it covers | Models |
 |---|---|---|
@@ -15,7 +15,7 @@ One Sugra API key fulfils 88 OpenBB standard data models across 13 command group
 | commodity (3) | Commodities and energy | obb.commodity.petroleum_status_report, obb.commodity.price.spot, obb.commodity.short_term_energy_outlook |
 | crypto (2) | Crypto | obb.crypto.price.historical, obb.crypto.search |
 | news (2) | News | obb.news.company, obb.news.world |
-| uscongress (3) | US Congress bills and amendments | obb.uscongress.amendments, obb.uscongress.bill_info, obb.uscongress.bills |
+| uscongress (4) | US Congress bills and amendments | obb.uscongress.amendment_info, obb.uscongress.amendments, obb.uscongress.bill_info, obb.uscongress.bills |
 | derivatives (1) | Options | obb.derivatives.options.chains |
 
 Every model above is live-verified against the Sugra API and through the OpenBB obb.* layer. OpenBB models that Sugra does not yet cover are tracked separately and added as the underlying data lands.
