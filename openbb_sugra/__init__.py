@@ -28,6 +28,9 @@ from openbb_sugra.models.congress_amendment_info import SugraCongressAmendmentIn
 from openbb_sugra.models.congress_amendments import SugraCongressAmendmentsFetcher
 from openbb_sugra.models.congress_bill_info import SugraCongressBillInfoFetcher
 from openbb_sugra.models.congress_bills import SugraCongressBillsFetcher
+from openbb_sugra.models.congress_committee_documents import (
+    SugraCongressCommitteeDocumentsFetcher,
+)
 from openbb_sugra.models.congress_committee_info import (
     SugraCongressCommitteeInfoFetcher,
 )
@@ -164,6 +167,7 @@ sugra_provider = Provider(
         "CongressAmendments": SugraCongressAmendmentsFetcher,
         "CongressBillInfo": SugraCongressBillInfoFetcher,
         "CongressBills": SugraCongressBillsFetcher,
+        "CongressCommitteeDocuments": SugraCongressCommitteeDocumentsFetcher,
         "CongressCommitteeInfo": SugraCongressCommitteeInfoFetcher,
         "ConsumerPriceIndex": SugraConsumerPriceIndexFetcher,
         "CryptoHistorical": SugraCryptoHistoricalFetcher,
