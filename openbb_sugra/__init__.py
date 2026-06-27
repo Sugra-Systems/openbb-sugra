@@ -186,6 +186,7 @@ from openbb_sugra.models.survey_of_economic_conditions_chicago import (
     SugraSurveyOfEconomicConditionsChicagoFetcher,
 )
 from openbb_sugra.models.symbol_map import SugraSymbolMapFetcher
+from openbb_sugra.models.tips_yields import SugraTipsYieldsFetcher
 from openbb_sugra.models.trailing_dividend_yield import SugraTrailingDivYieldFetcher
 from openbb_sugra.models.treasury_auctions import SugraUSTreasuryAuctionsFetcher
 from openbb_sugra.models.treasury_constant_maturity import (
@@ -341,6 +342,7 @@ sugra_provider = Provider(
         "SurveyOfEconomicConditionsChicago": (
             SugraSurveyOfEconomicConditionsChicagoFetcher
         ),
+        "TipsYields": SugraTipsYieldsFetcher,
         "TrailingDividendYield": SugraTrailingDivYieldFetcher,
         "TreasuryAuctions": SugraUSTreasuryAuctionsFetcher,
         "TreasuryConstantMaturity": SugraTreasuryConstantMaturityFetcher,
