@@ -16,6 +16,7 @@ from openbb_sugra.models.analyst_estimates import SugraAnalystEstimatesFetcher
 from openbb_sugra.models.available_indices import SugraAvailableIndicesFetcher
 from openbb_sugra.models.balance_of_payments import SugraBalanceOfPaymentsFetcher
 from openbb_sugra.models.balance_sheet import SugraBalanceSheetFetcher
+from openbb_sugra.models.balance_sheet_growth import SugraBalanceSheetGrowthFetcher
 from openbb_sugra.models.bls_search import SugraBlsSearchFetcher
 from openbb_sugra.models.bls_series import SugraBlsSeriesFetcher
 from openbb_sugra.models.bond_indices import SugraBondIndicesFetcher
@@ -23,10 +24,12 @@ from openbb_sugra.models.calendar_dividend import SugraCalendarDividendFetcher
 from openbb_sugra.models.calendar_earnings import SugraCalendarEarningsFetcher
 from openbb_sugra.models.calendar_splits import SugraCalendarSplitsFetcher
 from openbb_sugra.models.cash_flow import SugraCashFlowStatementFetcher
+from openbb_sugra.models.cash_flow_growth import SugraCashFlowStatementGrowthFetcher
 from openbb_sugra.models.commercial_paper import SugraCommercialPaperFetcher
 from openbb_sugra.models.commodity_spot_prices import SugraCommoditySpotPricesFetcher
 from openbb_sugra.models.company_filings import SugraCompanyFilingsFetcher
 from openbb_sugra.models.company_news import SugraCompanyNewsFetcher
+from openbb_sugra.models.compare_company_facts import SugraCompareCompanyFactsFetcher
 from openbb_sugra.models.composite_leading_indicator import (
     SugraCompositeLeadingIndicatorFetcher,
 )
@@ -106,10 +109,12 @@ from openbb_sugra.models.gdp_forecast import SugraGdpForecastFetcher
 from openbb_sugra.models.gdp_nominal import SugraGdpNominalFetcher
 from openbb_sugra.models.gdp_real import SugraGdpRealFetcher
 from openbb_sugra.models.growth_tech_equities import SugraGrowthTechEquitiesFetcher
+from openbb_sugra.models.historical_attributes import SugraHistoricalAttributesFetcher
 from openbb_sugra.models.historical_dividends import SugraHistoricalDividendsFetcher
 from openbb_sugra.models.historical_splits import SugraHistoricalSplitsFetcher
 from openbb_sugra.models.house_price_index import SugraHousePriceIndexFetcher
 from openbb_sugra.models.income_statement import SugraIncomeStatementFetcher
+from openbb_sugra.models.income_statement_growth import SugraIncomeStatementGrowthFetcher
 from openbb_sugra.models.index_constituents import SugraIndexConstituentsFetcher
 from openbb_sugra.models.index_historical import SugraIndexHistoricalFetcher
 from openbb_sugra.models.insider_trading import SugraInsiderTradingFetcher
@@ -118,6 +123,11 @@ from openbb_sugra.models.institutional_ownership import (
 )
 from openbb_sugra.models.iorb_rates import SugraIORBFetcher
 from openbb_sugra.models.key_metrics import SugraKeyMetricsFetcher
+from openbb_sugra.models.latest_attributes import SugraLatestAttributesFetcher
+from openbb_sugra.models.latest_financial_reports import SugraLatestFinancialReportsFetcher
+from openbb_sugra.models.management_discussion_analysis import (
+    SugraManagementDiscussionAnalysisFetcher,
+)
 from openbb_sugra.models.manufacturing_outlook_ny import (
     SugraManufacturingOutlookNYFetcher,
 )
@@ -201,6 +211,14 @@ sugra_provider = Provider(
         "AvailableIndices": SugraAvailableIndicesFetcher,
         "BalanceOfPayments": SugraBalanceOfPaymentsFetcher,
         "BalanceSheet": SugraBalanceSheetFetcher,
+        "BalanceSheetGrowth": SugraBalanceSheetGrowthFetcher,
+        "CashFlowStatementGrowth": SugraCashFlowStatementGrowthFetcher,
+        "IncomeStatementGrowth": SugraIncomeStatementGrowthFetcher,
+        "HistoricalAttributes": SugraHistoricalAttributesFetcher,
+        "LatestAttributes": SugraLatestAttributesFetcher,
+        "ManagementDiscussionAnalysis": SugraManagementDiscussionAnalysisFetcher,
+        "CompareCompanyFacts": SugraCompareCompanyFactsFetcher,
+        "LatestFinancialReports": SugraLatestFinancialReportsFetcher,
         "BlsSearch": SugraBlsSearchFetcher,
         "BlsSeries": SugraBlsSeriesFetcher,
         "BondIndices": SugraBondIndicesFetcher,
