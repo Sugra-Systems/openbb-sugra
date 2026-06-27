@@ -13,6 +13,7 @@ from openbb_sugra.models.aggressive_small_caps import (
 )
 from openbb_sugra.models.ameribor import SugraAmeriborFetcher
 from openbb_sugra.models.analyst_estimates import SugraAnalystEstimatesFetcher
+from openbb_sugra.models.available_indicators import SugraAvailableIndicatorsFetcher
 from openbb_sugra.models.available_indices import SugraAvailableIndicesFetcher
 from openbb_sugra.models.balance_of_payments import SugraBalanceOfPaymentsFetcher
 from openbb_sugra.models.balance_sheet import SugraBalanceSheetFetcher
@@ -77,6 +78,7 @@ from openbb_sugra.models.etf_info import SugraEtfInfoFetcher
 from openbb_sugra.models.etf_price_performance import SugraEtfPricePerformanceFetcher
 from openbb_sugra.models.etf_search import SugraEtfSearchFetcher
 from openbb_sugra.models.euro_short_term_rate import SugraEuroShortTermRateFetcher
+from openbb_sugra.models.export_destinations import SugraExportDestinationsFetcher
 from openbb_sugra.models.famafrench_breakpoints import (
     SugraFamaFrenchBreakpointFetcher,
 )
@@ -218,6 +220,7 @@ sugra_provider = Provider(
     fetcher_dict={
         "Ameribor": SugraAmeriborFetcher,
         "AnalystEstimates": SugraAnalystEstimatesFetcher,
+        "AvailableIndicators": SugraAvailableIndicatorsFetcher,
         "AvailableIndices": SugraAvailableIndicesFetcher,
         "BalanceOfPayments": SugraBalanceOfPaymentsFetcher,
         "BalanceSheet": SugraBalanceSheetFetcher,
@@ -281,6 +284,7 @@ sugra_provider = Provider(
         "EtfSearch": SugraEtfSearchFetcher,
         "EuropeanCentralBankInterestRates": SugraECBInterestRatesFetcher,
         "EuroShortTermRate": SugraEuroShortTermRateFetcher,
+        "ExportDestinations": SugraExportDestinationsFetcher,
         "FamaFrenchBreakpoints": SugraFamaFrenchBreakpointFetcher,
         "FamaFrenchCountryPortfolioReturns": SugraFamaFrenchCountryPortfolioReturnsFetcher,
         "FamaFrenchFactors": SugraFamaFrenchFactorsFetcher,
