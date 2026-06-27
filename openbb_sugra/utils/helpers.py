@@ -6,10 +6,13 @@ keep ``import openbb`` time low.
 """
 
 import contextlib
+import logging
 import re
 from typing import Any
 
 SUGRA_BASE_URL = "https://sugra.ai"
+
+logger = logging.getLogger(__name__)
 
 _CAMEL_RE = re.compile(r"(?<!^)(?=[A-Z])")
 
@@ -129,3 +132,57 @@ def fred_observations(payload: Any) -> list[dict]:
         rows.append({"date": obs["date"], "value": value})
     rows.sort(key=lambda r: r["date"])
     return rows
+
+
+async def fred_series_payloads(
+    api_key: str,
+    series_ids: list[str],
+    *,
+    start_date: Any = None,
+    end_date: Any = None,
+    limit: int = 1000,
+    base_url: str = SUGRA_BASE_URL,
+) -> dict[str, dict]:
+    """Fetch several FRED series concurrently; return ``{series_id: payload}``.
+
+    Multi-field rate models (OBFR, ESTR, AMERIBOR, FOMC projections) are one
+    standard model backed by a fixed set of FRED series. The single-series proxy
+    is hit once per id in parallel and the unwrapped payloads are keyed by id for
+    the caller to pivot or melt. A non-dict payload becomes an empty dict.
+    """
+    # pylint: disable=import-outside-toplevel
+    import asyncio
+
+    params: dict[str, Any] = {"limit": limit, "sort_order": "desc"}
+    if start_date:
+        params["observation_start"] = str(start_date)
+    if end_date:
+        params["observation_end"] = str(end_date)
+
+    async def _one(series_id: str) -> tuple[str, dict]:
+        response = await sugra_get(
+            f"/api/v1/fred/series/{series_id}", api_key, params, base_url=base_url
+        )
+        payload = envelope_data(response)
+        return series_id, payload if isinstance(payload, dict) else {}
+
+    # One transient series failure must not sink the whole multi-field model:
+    # gather all, log + drop any that raised, and let the caller decide whether
+    # the surviving series are enough (a missing primary series -> EmptyDataError
+    # downstream, optional fields just stay None).
+    results = await asyncio.gather(
+        *[_one(sid) for sid in series_ids], return_exceptions=True
+    )
+    payloads: dict[str, dict] = {}
+    for series_id, result in zip(series_ids, results):
+        if isinstance(result, Exception):
+            logger.warning(
+                "Sugra FRED series fetch failed for %s: %s", series_id, result
+            )
+            payloads[series_id] = {}
+        elif isinstance(result, BaseException):
+            # CancelledError / KeyboardInterrupt must propagate, not be dropped.
+            raise result
+        else:
+            payloads[series_id] = result[1]
+    return payloads

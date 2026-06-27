@@ -11,6 +11,7 @@ from openbb_core.provider.abstract.provider import Provider
 from openbb_sugra.models.aggressive_small_caps import (
     SugraEquityAggressiveSmallCapsFetcher,
 )
+from openbb_sugra.models.ameribor import SugraAmeriborFetcher
 from openbb_sugra.models.analyst_estimates import SugraAnalystEstimatesFetcher
 from openbb_sugra.models.available_indices import SugraAvailableIndicesFetcher
 from openbb_sugra.models.balance_of_payments import SugraBalanceOfPaymentsFetcher
@@ -63,6 +64,7 @@ from openbb_sugra.models.etf_holdings import SugraEtfHoldingsFetcher
 from openbb_sugra.models.etf_info import SugraEtfInfoFetcher
 from openbb_sugra.models.etf_price_performance import SugraEtfPricePerformanceFetcher
 from openbb_sugra.models.etf_search import SugraEtfSearchFetcher
+from openbb_sugra.models.euro_short_term_rate import SugraEuroShortTermRateFetcher
 from openbb_sugra.models.famafrench_breakpoints import (
     SugraFamaFrenchBreakpointFetcher,
 )
@@ -79,6 +81,7 @@ from openbb_sugra.models.famafrench_regional_portfolio_returns import (
 from openbb_sugra.models.famafrench_us_portfolio_returns import (
     SugraFamaFrenchUSPortfolioReturnsFetcher,
 )
+from openbb_sugra.models.fed_projections import SugraFedProjectionsFetcher
 from openbb_sugra.models.federal_funds_rate import SugraFederalFundsRateFetcher
 from openbb_sugra.models.financial_ratios import SugraFinancialRatiosFetcher
 from openbb_sugra.models.form_13FHR import SugraForm13FHRFetcher
@@ -115,6 +118,9 @@ from openbb_sugra.models.market_snapshots import SugraMarketSnapshotsFetcher
 from openbb_sugra.models.money_measures import SugraMoneyMeasuresFetcher
 from openbb_sugra.models.non_farm_payrolls import SugraNonFarmPayrollsFetcher
 from openbb_sugra.models.options_chains import SugraOptionsChainsFetcher
+from openbb_sugra.models.overnight_bank_funding_rate import (
+    SugraOvernightBankFundingRateFetcher,
+)
 from openbb_sugra.models.personal_consumption_expenditures import (
     SugraPersonalConsumptionExpendituresFetcher,
 )
@@ -160,6 +166,7 @@ sugra_provider = Provider(
     ),
     credentials=["api_key"],
     fetcher_dict={
+        "Ameribor": SugraAmeriborFetcher,
         "AnalystEstimates": SugraAnalystEstimatesFetcher,
         "AvailableIndices": SugraAvailableIndicesFetcher,
         "BalanceOfPayments": SugraBalanceOfPaymentsFetcher,
@@ -207,6 +214,7 @@ sugra_provider = Provider(
         "EtfPricePerformance": SugraEtfPricePerformanceFetcher,
         "EtfSearch": SugraEtfSearchFetcher,
         "EuropeanCentralBankInterestRates": SugraECBInterestRatesFetcher,
+        "EuroShortTermRate": SugraEuroShortTermRateFetcher,
         "FamaFrenchBreakpoints": SugraFamaFrenchBreakpointFetcher,
         "FamaFrenchCountryPortfolioReturns": SugraFamaFrenchCountryPortfolioReturnsFetcher,
         "FamaFrenchFactors": SugraFamaFrenchFactorsFetcher,
@@ -239,6 +247,8 @@ sugra_provider = Provider(
         "MoneyMeasures": SugraMoneyMeasuresFetcher,
         "NonFarmPayrolls": SugraNonFarmPayrollsFetcher,
         "OptionsChains": SugraOptionsChainsFetcher,
+        "OvernightBankFundingRate": SugraOvernightBankFundingRateFetcher,
+        "PROJECTIONS": SugraFedProjectionsFetcher,
         "PersonalConsumptionExpenditures": SugraPersonalConsumptionExpendituresFetcher,
         "PetroleumStatusReport": SugraPetroleumStatusReportFetcher,
         "PortInfo": SugraPortInfoFetcher,

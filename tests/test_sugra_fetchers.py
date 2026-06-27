@@ -20,6 +20,7 @@ from openbb_sugra import sugra_provider
 
 # One representative parameter set per fetcher (live data verified).
 PARAMS: dict[str, dict] = {
+    "Ameribor": {},
     "AnalystEstimates": {"symbol": "AAPL"},
     "AvailableIndices": {},
     "BalanceOfPayments": {"report_type": "main"},
@@ -67,6 +68,7 @@ PARAMS: dict[str, dict] = {
     "EtfPricePerformance": {"symbol": "SPY"},
     "EtfSearch": {"query": "SPY"},
     "EuropeanCentralBankInterestRates": {},
+    "EuroShortTermRate": {},
     "FamaFrenchBreakpoints": {"breakpoint_type": "me"},
     "FamaFrenchCountryPortfolioReturns": {"country": "united_kingdom"},
     "FamaFrenchFactors": {},
@@ -99,6 +101,8 @@ PARAMS: dict[str, dict] = {
     "MoneyMeasures": {},
     "NonFarmPayrolls": {},
     "OptionsChains": {"symbol": "AAPL"},
+    "OvernightBankFundingRate": {},
+    "PROJECTIONS": {},
     "PersonalConsumptionExpenditures": {},
     "PetroleumStatusReport": {},
     "PortInfo": {},
