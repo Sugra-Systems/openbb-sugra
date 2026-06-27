@@ -24,6 +24,7 @@ GROUP_ORDER = [
     "crypto",
     "news",
     "uscongress",
+    "regulators",
     "derivatives",
 ]
 GROUP_DESC = {
@@ -39,6 +40,7 @@ GROUP_DESC = {
     "crypto": "Crypto",
     "news": "News",
     "uscongress": "US Congress bills, amendments, committees, and documents",
+    "regulators": "SEC registry: CIK and symbol maps, institution and SIC search",
     "derivatives": "Options",
 }
 
