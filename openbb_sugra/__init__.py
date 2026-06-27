@@ -110,6 +110,9 @@ from openbb_sugra.models.gdp_forecast import SugraGdpForecastFetcher
 from openbb_sugra.models.gdp_nominal import SugraGdpNominalFetcher
 from openbb_sugra.models.gdp_real import SugraGdpRealFetcher
 from openbb_sugra.models.growth_tech_equities import SugraGrowthTechEquitiesFetcher
+from openbb_sugra.models.high_quality_market import (
+    SugraHighQualityMarketCorporateBondFetcher,
+)
 from openbb_sugra.models.historical_attributes import SugraHistoricalAttributesFetcher
 from openbb_sugra.models.historical_dividends import SugraHistoricalDividendsFetcher
 from openbb_sugra.models.historical_splits import SugraHistoricalSplitsFetcher
@@ -160,6 +163,7 @@ from openbb_sugra.models.port_info import SugraPortInfoFetcher
 from openbb_sugra.models.port_volume import SugraPortVolumeFetcher
 from openbb_sugra.models.price_performance import SugraPricePerformanceFetcher
 from openbb_sugra.models.price_target_consensus import SugraPriceTargetConsensusFetcher
+from openbb_sugra.models.release_table import SugraReleaseTableFetcher
 from openbb_sugra.models.retail_prices import SugraRetailPricesFetcher
 from openbb_sugra.models.selected_treasury_bill import SugraSelectedTreasuryBillFetcher
 from openbb_sugra.models.selected_treasury_constant_maturity import (
@@ -287,12 +291,14 @@ sugra_provider = Provider(
         "ForwardEbitdaEstimates": SugraForwardEbitdaEstimatesFetcher,
         "ForwardEpsEstimates": SugraForwardEpsEstimatesFetcher,
         "ForwardSalesEstimates": SugraForwardSalesEstimatesFetcher,
+        "FredReleaseTable": SugraReleaseTableFetcher,
         "FredSearch": SugraFredSearchFetcher,
         "FredSeries": SugraFredSeriesFetcher,
         "GdpForecast": SugraGdpForecastFetcher,
         "GdpNominal": SugraGdpNominalFetcher,
         "GdpReal": SugraGdpRealFetcher,
         "GrowthTechEquities": SugraGrowthTechEquitiesFetcher,
+        "HighQualityMarketCorporateBond": SugraHighQualityMarketCorporateBondFetcher,
         "HistoricalDividends": SugraHistoricalDividendsFetcher,
         "HistoricalSplits": SugraHistoricalSplitsFetcher,
         "HousePriceIndex": SugraHousePriceIndexFetcher,
