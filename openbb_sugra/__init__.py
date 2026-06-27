@@ -51,6 +51,7 @@ from openbb_sugra.models.cot_search import SugraCotSearchFetcher
 from openbb_sugra.models.country_interest_rates import (
     SugraCountryInterestRatesFetcher,
 )
+from openbb_sugra.models.country_profile import SugraCountryProfileFetcher
 from openbb_sugra.models.crypto_historical import SugraCryptoHistoricalFetcher
 from openbb_sugra.models.crypto_search import SugraCryptoSearchFetcher
 from openbb_sugra.models.currency_historical import SugraCurrencyHistoricalFetcher
@@ -59,10 +60,12 @@ from openbb_sugra.models.currency_reference_rates import (
     SugraCurrencyReferenceRatesFetcher,
 )
 from openbb_sugra.models.currency_snapshots import SugraCurrencySnapshotsFetcher
+from openbb_sugra.models.direction_of_trade import SugraDirectionOfTradeFetcher
 from openbb_sugra.models.discount_window_primary_credit_rate import (
     SugraDiscountWindowPrimaryCreditRateFetcher,
 )
 from openbb_sugra.models.ecb_interest_rates import SugraECBInterestRatesFetcher
+from openbb_sugra.models.economic_indicators import SugraEconomicIndicatorsFetcher
 from openbb_sugra.models.equity_active import SugraEquityActiveFetcher
 from openbb_sugra.models.equity_gainers import SugraEquityGainersFetcher
 from openbb_sugra.models.equity_historical import SugraEquityHistoricalFetcher
@@ -258,13 +261,16 @@ sugra_provider = Provider(
         "CongressCommitteeInfo": SugraCongressCommitteeInfoFetcher,
         "ConsumerPriceIndex": SugraConsumerPriceIndexFetcher,
         "CountryInterestRates": SugraCountryInterestRatesFetcher,
+        "CountryProfile": SugraCountryProfileFetcher,
         "CryptoHistorical": SugraCryptoHistoricalFetcher,
         "CryptoSearch": SugraCryptoSearchFetcher,
         "CurrencyHistorical": SugraCurrencyHistoricalFetcher,
         "CurrencyPairs": SugraCurrencyPairsFetcher,
         "CurrencyReferenceRates": SugraCurrencyReferenceRatesFetcher,
         "CurrencySnapshots": SugraCurrencySnapshotsFetcher,
+        "DirectionOfTrade": SugraDirectionOfTradeFetcher,
         "DiscountWindowPrimaryCreditRate": SugraDiscountWindowPrimaryCreditRateFetcher,
+        "EconomicIndicators": SugraEconomicIndicatorsFetcher,
         "EquityActive": SugraEquityActiveFetcher,
         "EquityAggressiveSmallCaps": SugraEquityAggressiveSmallCapsFetcher,
         "EquityGainers": SugraEquityGainersFetcher,

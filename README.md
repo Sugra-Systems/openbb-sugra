@@ -57,7 +57,7 @@ obb.crypto.price.historical("BITCOIN", provider="sugra")
 
 ## 4. Coverage
 
-A single Sugra key fulfils 117 OpenBB standard data models across thirteen command groups - equity, economy, Fama-French, ETF, currency, fixed income, index, CFTC, commodity, crypto, news, US Congress, and derivatives. The full matrix is generated from the shipped fetchers - see [`COVERAGE.md`](https://github.com/Sugra-Systems/openbb-sugra/blob/main/COVERAGE.md).
+A single Sugra key fulfils 138 OpenBB standard data models across fourteen command groups - equity, economy, Fama-French, ETF, currency, fixed income, index, CFTC, commodity, crypto, news, US Congress, regulators, and derivatives. The full matrix is generated from the shipped fetchers - see [`COVERAGE.md`](https://github.com/Sugra-Systems/openbb-sugra/blob/main/COVERAGE.md).
 
 ## 5. License
 
