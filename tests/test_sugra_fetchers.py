@@ -144,6 +144,7 @@ PARAMS: dict[str, dict] = {
     "ShortTermEnergyOutlook": {},
     "SpotRate": {},
     "SurveyOfEconomicConditionsChicago": {},
+    "TipsYields": {"maturity": "10"},
     "TrailingDividendYield": {"symbol": "AAPL"},
     "TreasuryAuctions": {"security_type": "note", "page_size": 10},
     "TreasuryConstantMaturity": {},
