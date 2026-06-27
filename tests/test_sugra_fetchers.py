@@ -97,6 +97,7 @@ PARAMS: dict[str, dict] = {
     "ForwardEbitdaEstimates": {"symbol": "AAPL"},
     "ForwardEpsEstimates": {"symbol": "AAPL"},
     "ForwardSalesEstimates": {"symbol": "AAPL"},
+    "FredRegional": {"symbol": "WIPCPI"},
     "FredReleaseTable": {"release_id": "402", "element_id": "219299"},
     "FredSearch": {"query": "unemployment"},
     "FredSeries": {"symbol": "GDP"},

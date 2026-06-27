@@ -163,6 +163,7 @@ from openbb_sugra.models.port_info import SugraPortInfoFetcher
 from openbb_sugra.models.port_volume import SugraPortVolumeFetcher
 from openbb_sugra.models.price_performance import SugraPricePerformanceFetcher
 from openbb_sugra.models.price_target_consensus import SugraPriceTargetConsensusFetcher
+from openbb_sugra.models.regional import SugraFredRegionalFetcher
 from openbb_sugra.models.release_table import SugraReleaseTableFetcher
 from openbb_sugra.models.retail_prices import SugraRetailPricesFetcher
 from openbb_sugra.models.selected_treasury_bill import SugraSelectedTreasuryBillFetcher
@@ -291,6 +292,7 @@ sugra_provider = Provider(
         "ForwardEbitdaEstimates": SugraForwardEbitdaEstimatesFetcher,
         "ForwardEpsEstimates": SugraForwardEpsEstimatesFetcher,
         "ForwardSalesEstimates": SugraForwardSalesEstimatesFetcher,
+        "FredRegional": SugraFredRegionalFetcher,
         "FredReleaseTable": SugraReleaseTableFetcher,
         "FredSearch": SugraFredSearchFetcher,
         "FredSeries": SugraFredSeriesFetcher,
