@@ -1,6 +1,6 @@
 # openbb-sugra coverage
 
-One Sugra API key fulfils 101 OpenBB standard data models across 13 command groups. Install one provider, set one credential, and pull all of the below - instead of wiring many separate provider keys.
+One Sugra API key fulfils 106 OpenBB standard data models across 13 command groups. Install one provider, set one credential, and pull all of the below - instead of wiring many separate provider keys.
 
 | OpenBB command group | What it covers | Models |
 |---|---|---|
@@ -9,7 +9,7 @@ One Sugra API key fulfils 101 OpenBB standard data models across 13 command grou
 | famafrench (6) | Fama-French academic factor returns | obb.famafrench.breakpoints, obb.famafrench.country_portfolio_returns, obb.famafrench.factors, obb.famafrench.international_index_returns, obb.famafrench.regional_portfolio_returns, obb.famafrench.us_portfolio_returns |
 | etf (5) | ETFs | obb.etf.historical, obb.etf.holdings, obb.etf.info, obb.etf.price_performance, obb.etf.search |
 | currency (4) | Forex | obb.currency.price.historical, obb.currency.reference_rates, obb.currency.search, obb.currency.snapshots |
-| fixedincome (15) | Rates and fixed income | obb.fixedincome.government.treasury_auctions, obb.fixedincome.government.yield_curve, obb.fixedincome.rate.ameribor, obb.fixedincome.rate.dpcredit, obb.fixedincome.rate.ecb, obb.fixedincome.rate.effr, obb.fixedincome.rate.effr_forecast, obb.fixedincome.rate.estr, obb.fixedincome.rate.iorb, obb.fixedincome.rate.overnight_bank_funding, obb.fixedincome.rate.sofr, obb.fixedincome.rate.sonia, obb.fixedincome.spreads.tcm, obb.fixedincome.spreads.tcm_effr, obb.fixedincome.spreads.treasury_effr |
+| fixedincome (20) | Rates and fixed income | obb.fixedincome.bond_indices, obb.fixedincome.corporate.commercial_paper, obb.fixedincome.corporate.spot_rates, obb.fixedincome.government.treasury_auctions, obb.fixedincome.government.treasury_rates, obb.fixedincome.government.yield_curve, obb.fixedincome.mortgage_indices, obb.fixedincome.rate.ameribor, obb.fixedincome.rate.dpcredit, obb.fixedincome.rate.ecb, obb.fixedincome.rate.effr, obb.fixedincome.rate.effr_forecast, obb.fixedincome.rate.estr, obb.fixedincome.rate.iorb, obb.fixedincome.rate.overnight_bank_funding, obb.fixedincome.rate.sofr, obb.fixedincome.rate.sonia, obb.fixedincome.spreads.tcm, obb.fixedincome.spreads.tcm_effr, obb.fixedincome.spreads.treasury_effr |
 | index (3) | Indices | obb.index.available, obb.index.constituents, obb.index.price.historical |
 | cftc (2) | CFTC Commitment of Traders | obb.cftc.cot, obb.cftc.cot_search |
 | commodity (3) | Commodities and energy | obb.commodity.petroleum_status_report, obb.commodity.price.spot, obb.commodity.short_term_energy_outlook |

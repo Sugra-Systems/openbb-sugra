@@ -141,14 +141,20 @@ async def fred_series_payloads(
     start_date: Any = None,
     end_date: Any = None,
     limit: int = 1000,
+    concurrency: int = 8,
     base_url: str = SUGRA_BASE_URL,
 ) -> dict[str, dict]:
     """Fetch several FRED series concurrently; return ``{series_id: payload}``.
 
     Multi-field rate models (OBFR, ESTR, AMERIBOR, FOMC projections) are one
     standard model backed by a fixed set of FRED series. The single-series proxy
-    is hit once per id in parallel and the unwrapped payloads are keyed by id for
-    the caller to pivot or melt. A non-dict payload becomes an empty dict.
+    is hit once per id and the unwrapped payloads are keyed by id for the caller
+    to pivot or melt. A non-dict payload becomes an empty dict.
+
+    Concurrency is capped (``concurrency``, default 8) because some models fan
+    out to ~200 series (the full HQM curve); an unbounded burst overwhelms the
+    single-worker API and trips 5xx. The cap keeps the fan-out friendly while
+    the API-side 24h cache makes repeat calls cheap.
     """
     # pylint: disable=import-outside-toplevel
     import asyncio
@@ -159,10 +165,13 @@ async def fred_series_payloads(
     if end_date:
         params["observation_end"] = str(end_date)
 
+    semaphore = asyncio.Semaphore(max(1, concurrency))
+
     async def _one(series_id: str) -> tuple[str, dict]:
-        response = await sugra_get(
-            f"/api/v1/fred/series/{series_id}", api_key, params, base_url=base_url
-        )
+        async with semaphore:
+            response = await sugra_get(
+                f"/api/v1/fred/series/{series_id}", api_key, params, base_url=base_url
+            )
         payload = envelope_data(response)
         return series_id, payload if isinstance(payload, dict) else {}
 
