@@ -65,4 +65,7 @@ class SugraCikMapFetcher(Fetcher[SugraCikMapQueryParams, SugraCikMapData]):
         cik = data.get("cik") if isinstance(data, dict) else None
         if cik is None:
             raise EmptyDataError(f"No CIK found for symbol '{query.symbol}'.")
-        return SugraCikMapData(cik=str(cik))
+        # The upstream already returns a 10-digit zero-padded CIK; enforce the
+        # invariant at our boundary so a bare CIK still complies with the
+        # standard model rather than trusting upstream formatting.
+        return SugraCikMapData(cik=str(cik).zfill(10))
