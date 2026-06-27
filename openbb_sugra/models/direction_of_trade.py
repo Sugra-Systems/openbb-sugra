@@ -62,10 +62,18 @@ class SugraDirectionOfTradeFetcher(
     ) -> dict:
         """Return the raw direction-of-trade payload from the Sugra API."""
         # pylint: disable=import-outside-toplevel
+        from openbb_core.provider.utils.errors import OpenBBError
+
         from openbb_sugra.utils.helpers import envelope_data, get_api_key, sugra_get
 
+        # None means "all" on each side, but both-"all" is the full IMTS matrix and
+        # is rejected. Surface a clear error instead of a bare upstream 422.
+        if not query.country and not query.counterpart:
+            raise OpenBBError(
+                "Specify at least one of 'country' or 'counterpart' "
+                "(both cannot be 'all')."
+            )
         api_key = get_api_key(credentials)
-        # The endpoint requires both sides; None on the standard model means "all".
         params: dict[str, Any] = {
             "country": query.country or "all",
             "counterpart": query.counterpart or "all",

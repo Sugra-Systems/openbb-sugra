@@ -26,6 +26,11 @@ class SugraEconomicIndicatorsQueryParams(EconomicIndicatorsQueryParams):
         description="Transformation to apply: toya (YoY %), tpop (period-over-period %), "
         "tusd (USD level), tpgp (% of GDP). Default is the native level.",
     )
+    frequency: str | None = Field(
+        default=None,
+        description="Reporting frequency. Note: this provider returns each series at "
+        "its native frequency and does not resample to this value.",
+    )
 
 
 class SugraEconomicIndicatorsData(EconomicIndicatorsData):
