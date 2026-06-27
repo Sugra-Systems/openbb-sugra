@@ -22,6 +22,7 @@ from openbb_sugra import sugra_provider
 PARAMS: dict[str, dict] = {
     "Ameribor": {},
     "AnalystEstimates": {"symbol": "AAPL"},
+    "AvailableIndicators": {},
     "AvailableIndices": {},
     "BalanceOfPayments": {"report_type": "main"},
     "BalanceSheet": {"symbol": "AAPL", "period": "annual"},
@@ -85,6 +86,7 @@ PARAMS: dict[str, dict] = {
     "EtfSearch": {"query": "SPY"},
     "EuropeanCentralBankInterestRates": {},
     "EuroShortTermRate": {},
+    "ExportDestinations": {"country": "germany"},
     "FamaFrenchBreakpoints": {"breakpoint_type": "me"},
     "FamaFrenchCountryPortfolioReturns": {"country": "united_kingdom"},
     "FamaFrenchFactors": {},
