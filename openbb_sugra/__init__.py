@@ -25,6 +25,7 @@ from openbb_sugra.models.calendar_earnings import SugraCalendarEarningsFetcher
 from openbb_sugra.models.calendar_splits import SugraCalendarSplitsFetcher
 from openbb_sugra.models.cash_flow import SugraCashFlowStatementFetcher
 from openbb_sugra.models.cash_flow_growth import SugraCashFlowStatementGrowthFetcher
+from openbb_sugra.models.cik_map import SugraCikMapFetcher
 from openbb_sugra.models.commercial_paper import SugraCommercialPaperFetcher
 from openbb_sugra.models.commodity_spot_prices import SugraCommoditySpotPricesFetcher
 from openbb_sugra.models.company_filings import SugraCompanyFilingsFetcher
@@ -121,6 +122,7 @@ from openbb_sugra.models.insider_trading import SugraInsiderTradingFetcher
 from openbb_sugra.models.institutional_ownership import (
     SugraInstitutionalOwnershipFetcher,
 )
+from openbb_sugra.models.institutions_search import SugraInstitutionsSearchFetcher
 from openbb_sugra.models.iorb_rates import SugraIORBFetcher
 from openbb_sugra.models.key_metrics import SugraKeyMetricsFetcher
 from openbb_sugra.models.latest_attributes import SugraLatestAttributesFetcher
@@ -171,12 +173,14 @@ from openbb_sugra.models.share_statistics import SugraShareStatisticsFetcher
 from openbb_sugra.models.short_term_energy_outlook import (
     SugraShortTermEnergyOutlookFetcher,
 )
+from openbb_sugra.models.sic_search import SugraSicSearchFetcher
 from openbb_sugra.models.sofr import SugraSOFRFetcher
 from openbb_sugra.models.sonia_rates import SugraSONIAFetcher
 from openbb_sugra.models.spot_rate import SugraSpotRateFetcher
 from openbb_sugra.models.survey_of_economic_conditions_chicago import (
     SugraSurveyOfEconomicConditionsChicagoFetcher,
 )
+from openbb_sugra.models.symbol_map import SugraSymbolMapFetcher
 from openbb_sugra.models.trailing_dividend_yield import SugraTrailingDivYieldFetcher
 from openbb_sugra.models.treasury_auctions import SugraUSTreasuryAuctionsFetcher
 from openbb_sugra.models.treasury_constant_maturity import (
@@ -211,6 +215,10 @@ sugra_provider = Provider(
         "AvailableIndices": SugraAvailableIndicesFetcher,
         "BalanceOfPayments": SugraBalanceOfPaymentsFetcher,
         "BalanceSheet": SugraBalanceSheetFetcher,
+        "CikMap": SugraCikMapFetcher,
+        "SymbolMap": SugraSymbolMapFetcher,
+        "InstitutionsSearch": SugraInstitutionsSearchFetcher,
+        "SicSearch": SugraSicSearchFetcher,
         "BalanceSheetGrowth": SugraBalanceSheetGrowthFetcher,
         "CashFlowStatementGrowth": SugraCashFlowStatementGrowthFetcher,
         "IncomeStatementGrowth": SugraIncomeStatementGrowthFetcher,

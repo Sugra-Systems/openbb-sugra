@@ -28,6 +28,7 @@ python = ">=3.10,<4"
 openbb-core = "^1.6"
 openbb-congress-gov = "^1.2"
 openbb-famafrench = "^1.2"
+openbb-sec = "^1.6"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"
@@ -52,6 +53,8 @@ select = ["E", "W", "F", "I", "UP", "SIM"]
 [tool.ruff.lint.per-file-ignores]
 # Generated BLS price catalog: long verbatim series titles exceed the line limit.
 "openbb_sugra/utils/retail_catalog.py" = ["E501"]
+# Generated SEC SIC catalog: long verbatim industry/office names exceed the limit.
+"openbb_sugra/utils/sic_catalog.py" = ["E501"]
 
 [tool.pytest.ini_options]
 markers = [
