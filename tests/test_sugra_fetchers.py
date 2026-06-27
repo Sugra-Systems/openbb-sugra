@@ -39,6 +39,7 @@ PARAMS: dict[str, dict] = {
     "CongressAmendments": {"congress": 119, "limit": 5},
     "CongressBillInfo": {"bill_url": "119/hr/1"},
     "CongressBills": {"congress": 119, "limit": 5},
+    "CongressCommitteeDocuments": {"chamber": "senate", "committee": "ssas00", "doc_type": "report"},
     "CongressCommitteeInfo": {"chamber": "senate", "committee": "ssas00"},
     "ConsumerPriceIndex": {},
     "CryptoHistorical": {"symbol": "BITCOIN"},
@@ -323,6 +324,46 @@ def test_congress_committee_info_transform_builds_markdown():
     # chair sorts ahead of ranking, which sorts ahead of the plain member
     assert md.index("Sen. Chair") < md.index("Sen. Rank") < md.index("Sen. Plain")
     assert out.raw_data["system_code"] == "ssas00"
+
+
+def test_congress_committee_documents_transform_builds_rows():
+    """The Sugra documents endpoint serves the same per-row shape the standard provider
+    emits; the canonical transform validates rows and preserves doc_url (extra='allow')."""
+    from openbb_sugra.models.congress_committee_documents import (
+        SugraCongressCommitteeDocumentsFetcher,
+    )
+
+    query = SugraCongressCommitteeDocumentsFetcher.transform_query(
+        {"chamber": "senate", "committee": "ssas00", "doc_type": "report"}
+    )
+    rows = [
+        {"doc_type": "report", "citation": "S. Rept. 119-5", "title": "S. Rept. 119-5",
+         "congress": 119, "chamber": "Senate",
+         "doc_url": "https://www.govinfo.gov/content/pkg/CRPT-119srpt5/pdf/CRPT-119srpt5.pdf"},
+    ]
+    out = SugraCongressCommitteeDocumentsFetcher.transform_data(query, rows)
+    assert len(out) == 1
+    assert out[0].doc_type == "report"
+    assert out[0].citation == "S. Rept. 119-5"
+    # doc_url is not a declared model field but survives via the model's extra="allow"
+    assert out[0].model_dump()["doc_url"].endswith("CRPT-119srpt5.pdf")
+
+
+def test_congress_committee_documents_empty_raises():
+    """An empty document list (e.g. an unsupported lean doc_type) raises EmptyDataError."""
+    import pytest
+
+    from openbb_core.provider.utils.errors import EmptyDataError
+
+    from openbb_sugra.models.congress_committee_documents import (
+        SugraCongressCommitteeDocumentsFetcher,
+    )
+
+    query = SugraCongressCommitteeDocumentsFetcher.transform_query(
+        {"chamber": "senate", "committee": "ssas00", "doc_type": "meeting"}
+    )
+    with pytest.raises(EmptyDataError):
+        SugraCongressCommitteeDocumentsFetcher.transform_data(query, [])
 
 
 def test_congress_rejects_offset_and_unbounded_limit():
