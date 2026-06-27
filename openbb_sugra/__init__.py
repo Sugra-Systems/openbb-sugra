@@ -148,6 +148,7 @@ from openbb_sugra.models.port_info import SugraPortInfoFetcher
 from openbb_sugra.models.port_volume import SugraPortVolumeFetcher
 from openbb_sugra.models.price_performance import SugraPricePerformanceFetcher
 from openbb_sugra.models.price_target_consensus import SugraPriceTargetConsensusFetcher
+from openbb_sugra.models.retail_prices import SugraRetailPricesFetcher
 from openbb_sugra.models.selected_treasury_bill import SugraSelectedTreasuryBillFetcher
 from openbb_sugra.models.selected_treasury_constant_maturity import (
     SugraSelectedTreasuryConstantMaturityFetcher,
@@ -299,6 +300,7 @@ sugra_provider = Provider(
         "SpotRate": SugraSpotRateFetcher,
         "SelectedTreasuryConstantMaturity": SugraSelectedTreasuryConstantMaturityFetcher,
         "SeniorLoanOfficerSurvey": SugraSeniorLoanOfficerSurveyFetcher,
+        "RetailPrices": SugraRetailPricesFetcher,
         "SharePriceIndex": SugraSharePriceIndexFetcher,
         "ShareStatistics": SugraShareStatisticsFetcher,
         "ShortTermEnergyOutlook": SugraShortTermEnergyOutlookFetcher,

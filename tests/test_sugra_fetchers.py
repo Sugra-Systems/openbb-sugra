@@ -122,6 +122,7 @@ PARAMS: dict[str, dict] = {
     "SONIA": {},
     "SelectedTreasuryBill": {},
     "SelectedTreasuryConstantMaturity": {},
+    "RetailPrices": {},
     "SeniorLoanOfficerSurvey": {},
     "SharePriceIndex": {},
     "ShareStatistics": {"symbol": "AAPL"},
