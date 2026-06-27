@@ -39,7 +39,7 @@ PARAMS: dict[str, dict] = {
     "CongressAmendments": {"congress": 119, "limit": 5},
     "CongressBillInfo": {"bill_url": "119/hr/1"},
     "CongressBills": {"congress": 119, "limit": 5},
-    "CongressCommitteeDocuments": {"chamber": "senate", "committee": "ssas00", "doc_type": "report"},
+    "CongressCommitteeDocuments": {"chamber": "senate", "committee": "ssas00"},
     "CongressCommitteeInfo": {"chamber": "senate", "committee": "ssas00"},
     "ConsumerPriceIndex": {},
     "CryptoHistorical": {"symbol": "BITCOIN"},
@@ -351,8 +351,6 @@ def test_congress_committee_documents_transform_builds_rows():
 
 def test_congress_committee_documents_empty_raises():
     """An empty document list (e.g. an unsupported lean doc_type) raises EmptyDataError."""
-    import pytest
-
     from openbb_core.provider.utils.errors import EmptyDataError
 
     from openbb_sugra.models.congress_committee_documents import (
