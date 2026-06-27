@@ -110,6 +110,12 @@ from openbb_sugra.models.institutional_ownership import (
 )
 from openbb_sugra.models.iorb_rates import SugraIORBFetcher
 from openbb_sugra.models.key_metrics import SugraKeyMetricsFetcher
+from openbb_sugra.models.manufacturing_outlook_ny import (
+    SugraManufacturingOutlookNYFetcher,
+)
+from openbb_sugra.models.manufacturing_outlook_texas import (
+    SugraManufacturingOutlookTexasFetcher,
+)
 from openbb_sugra.models.maritime_chokepoint_info import (
     SugraMaritimeChokePointInfoFetcher,
 )
@@ -138,6 +144,9 @@ from openbb_sugra.models.selected_treasury_bill import SugraSelectedTreasuryBill
 from openbb_sugra.models.selected_treasury_constant_maturity import (
     SugraSelectedTreasuryConstantMaturityFetcher,
 )
+from openbb_sugra.models.senior_loan_officer_survey import (
+    SugraSeniorLoanOfficerSurveyFetcher,
+)
 from openbb_sugra.models.share_statistics import SugraShareStatisticsFetcher
 from openbb_sugra.models.short_term_energy_outlook import (
     SugraShortTermEnergyOutlookFetcher,
@@ -145,6 +154,9 @@ from openbb_sugra.models.short_term_energy_outlook import (
 from openbb_sugra.models.sofr import SugraSOFRFetcher
 from openbb_sugra.models.sonia_rates import SugraSONIAFetcher
 from openbb_sugra.models.spot_rate import SugraSpotRateFetcher
+from openbb_sugra.models.survey_of_economic_conditions_chicago import (
+    SugraSurveyOfEconomicConditionsChicagoFetcher,
+)
 from openbb_sugra.models.trailing_dividend_yield import SugraTrailingDivYieldFetcher
 from openbb_sugra.models.treasury_auctions import SugraUSTreasuryAuctionsFetcher
 from openbb_sugra.models.treasury_constant_maturity import (
@@ -156,6 +168,9 @@ from openbb_sugra.models.undervalued_growth_equities import (
 )
 from openbb_sugra.models.undervalued_large_caps import SugraUndervaluedLargeCapsFetcher
 from openbb_sugra.models.unemployment import SugraUnemploymentFetcher
+from openbb_sugra.models.university_of_michigan import (
+    SugraUniversityOfMichiganFetcher,
+)
 from openbb_sugra.models.world_news import SugraWorldNewsFetcher
 from openbb_sugra.models.yield_curve import SugraYieldCurveFetcher
 
@@ -250,6 +265,8 @@ sugra_provider = Provider(
         "KeyMetrics": SugraKeyMetricsFetcher,
         "MaritimeChokePointInfo": SugraMaritimeChokePointInfoFetcher,
         "MaritimeChokePointVolume": SugraMaritimeChokePointVolumeFetcher,
+        "ManufacturingOutlookNY": SugraManufacturingOutlookNYFetcher,
+        "ManufacturingOutlookTexas": SugraManufacturingOutlookTexasFetcher,
         "MarketSnapshots": SugraMarketSnapshotsFetcher,
         "MoneyMeasures": SugraMoneyMeasuresFetcher,
         "MortgageIndices": SugraMortgageIndicesFetcher,
@@ -268,13 +285,18 @@ sugra_provider = Provider(
         "SelectedTreasuryBill": SugraSelectedTreasuryBillFetcher,
         "SpotRate": SugraSpotRateFetcher,
         "SelectedTreasuryConstantMaturity": SugraSelectedTreasuryConstantMaturityFetcher,
+        "SeniorLoanOfficerSurvey": SugraSeniorLoanOfficerSurveyFetcher,
         "ShareStatistics": SugraShareStatisticsFetcher,
         "ShortTermEnergyOutlook": SugraShortTermEnergyOutlookFetcher,
+        "SurveyOfEconomicConditionsChicago": (
+            SugraSurveyOfEconomicConditionsChicagoFetcher
+        ),
         "TrailingDividendYield": SugraTrailingDivYieldFetcher,
         "TreasuryAuctions": SugraUSTreasuryAuctionsFetcher,
         "TreasuryConstantMaturity": SugraTreasuryConstantMaturityFetcher,
         "TreasuryRates": SugraTreasuryRatesFetcher,
         "Unemployment": SugraUnemploymentFetcher,
+        "UniversityOfMichigan": SugraUniversityOfMichiganFetcher,
         "WorldNews": SugraWorldNewsFetcher,
         "YieldCurve": SugraYieldCurveFetcher,
     },
