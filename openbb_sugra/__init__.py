@@ -45,6 +45,10 @@ from openbb_sugra.models.currency_reference_rates import (
     SugraCurrencyReferenceRatesFetcher,
 )
 from openbb_sugra.models.currency_snapshots import SugraCurrencySnapshotsFetcher
+from openbb_sugra.models.discount_window_primary_credit_rate import (
+    SugraDiscountWindowPrimaryCreditRateFetcher,
+)
+from openbb_sugra.models.ecb_interest_rates import SugraECBInterestRatesFetcher
 from openbb_sugra.models.equity_active import SugraEquityActiveFetcher
 from openbb_sugra.models.equity_gainers import SugraEquityGainersFetcher
 from openbb_sugra.models.equity_historical import SugraEquityHistoricalFetcher
@@ -99,6 +103,7 @@ from openbb_sugra.models.insider_trading import SugraInsiderTradingFetcher
 from openbb_sugra.models.institutional_ownership import (
     SugraInstitutionalOwnershipFetcher,
 )
+from openbb_sugra.models.iorb_rates import SugraIORBFetcher
 from openbb_sugra.models.key_metrics import SugraKeyMetricsFetcher
 from openbb_sugra.models.maritime_chokepoint_info import (
     SugraMaritimeChokePointInfoFetcher,
@@ -120,6 +125,10 @@ from openbb_sugra.models.port_info import SugraPortInfoFetcher
 from openbb_sugra.models.port_volume import SugraPortVolumeFetcher
 from openbb_sugra.models.price_performance import SugraPricePerformanceFetcher
 from openbb_sugra.models.price_target_consensus import SugraPriceTargetConsensusFetcher
+from openbb_sugra.models.selected_treasury_bill import SugraSelectedTreasuryBillFetcher
+from openbb_sugra.models.selected_treasury_constant_maturity import (
+    SugraSelectedTreasuryConstantMaturityFetcher,
+)
 from openbb_sugra.models.share_statistics import SugraShareStatisticsFetcher
 from openbb_sugra.models.short_term_energy_outlook import (
     SugraShortTermEnergyOutlookFetcher,
@@ -128,6 +137,9 @@ from openbb_sugra.models.sofr import SugraSOFRFetcher
 from openbb_sugra.models.sonia_rates import SugraSONIAFetcher
 from openbb_sugra.models.trailing_dividend_yield import SugraTrailingDivYieldFetcher
 from openbb_sugra.models.treasury_auctions import SugraUSTreasuryAuctionsFetcher
+from openbb_sugra.models.treasury_constant_maturity import (
+    SugraTreasuryConstantMaturityFetcher,
+)
 from openbb_sugra.models.undervalued_growth_equities import (
     SugraUndervaluedGrowthEquitiesFetcher,
 )
@@ -176,6 +188,7 @@ sugra_provider = Provider(
         "CurrencyPairs": SugraCurrencyPairsFetcher,
         "CurrencyReferenceRates": SugraCurrencyReferenceRatesFetcher,
         "CurrencySnapshots": SugraCurrencySnapshotsFetcher,
+        "DiscountWindowPrimaryCreditRate": SugraDiscountWindowPrimaryCreditRateFetcher,
         "EquityActive": SugraEquityActiveFetcher,
         "EquityAggressiveSmallCaps": SugraEquityAggressiveSmallCapsFetcher,
         "EquityGainers": SugraEquityGainersFetcher,
@@ -193,6 +206,7 @@ sugra_provider = Provider(
         "EtfInfo": SugraEtfInfoFetcher,
         "EtfPricePerformance": SugraEtfPricePerformanceFetcher,
         "EtfSearch": SugraEtfSearchFetcher,
+        "EuropeanCentralBankInterestRates": SugraECBInterestRatesFetcher,
         "FamaFrenchBreakpoints": SugraFamaFrenchBreakpointFetcher,
         "FamaFrenchCountryPortfolioReturns": SugraFamaFrenchCountryPortfolioReturnsFetcher,
         "FamaFrenchFactors": SugraFamaFrenchFactorsFetcher,
@@ -216,6 +230,7 @@ sugra_provider = Provider(
         "IndexConstituents": SugraIndexConstituentsFetcher,
         "IndexHistorical": SugraIndexHistoricalFetcher,
         "InsiderTrading": SugraInsiderTradingFetcher,
+        "IORB": SugraIORBFetcher,
         "InstitutionalOwnership": SugraInstitutionalOwnershipFetcher,
         "KeyMetrics": SugraKeyMetricsFetcher,
         "MaritimeChokePointInfo": SugraMaritimeChokePointInfoFetcher,
@@ -232,10 +247,13 @@ sugra_provider = Provider(
         "PriceTargetConsensus": SugraPriceTargetConsensusFetcher,
         "SOFR": SugraSOFRFetcher,
         "SONIA": SugraSONIAFetcher,
+        "SelectedTreasuryBill": SugraSelectedTreasuryBillFetcher,
+        "SelectedTreasuryConstantMaturity": SugraSelectedTreasuryConstantMaturityFetcher,
         "ShareStatistics": SugraShareStatisticsFetcher,
         "ShortTermEnergyOutlook": SugraShortTermEnergyOutlookFetcher,
         "TrailingDividendYield": SugraTrailingDivYieldFetcher,
         "TreasuryAuctions": SugraUSTreasuryAuctionsFetcher,
+        "TreasuryConstantMaturity": SugraTreasuryConstantMaturityFetcher,
         "Unemployment": SugraUnemploymentFetcher,
         "WorldNews": SugraWorldNewsFetcher,
         "YieldCurve": SugraYieldCurveFetcher,

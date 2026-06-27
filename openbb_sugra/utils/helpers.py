@@ -103,3 +103,29 @@ def kf_period_to_iso(raw: str) -> str:
     if len(raw) == 4:
         return f"{raw}-12-31"
     return raw
+
+
+def fred_observations(payload: Any) -> list[dict]:
+    """Return cleaned, date-ascending ``[{date, value}]`` rows from a FRED payload.
+
+    The Sugra ``/api/v1/fred/series/{id}`` endpoint already coerces FRED's ``"."``
+    gaps to ``None`` and casts values to float, so this drops null/empty
+    observations, keeps the float value, and sorts ascending (the order OpenBB
+    standard models present). Normalisation - percent vs fraction (``x-frontend_multiply``)
+    - stays explicit in each fetcher; this only handles the shared plumbing.
+    """
+    observations = (payload or {}).get("observations") or []
+    rows: list[dict] = []
+    for obs in observations:
+        if not isinstance(obs, dict) or obs.get("date") is None:
+            continue
+        value = obs.get("value")
+        if isinstance(value, str):
+            if value.strip() in {"", "."}:
+                continue
+            value = float(value)
+        if value is None:
+            continue
+        rows.append({"date": obs["date"], "value": value})
+    rows.sort(key=lambda r: r["date"])
+    return rows
