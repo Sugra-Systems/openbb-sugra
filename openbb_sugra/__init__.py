@@ -27,6 +27,9 @@ from openbb_sugra.models.commercial_paper import SugraCommercialPaperFetcher
 from openbb_sugra.models.commodity_spot_prices import SugraCommoditySpotPricesFetcher
 from openbb_sugra.models.company_filings import SugraCompanyFilingsFetcher
 from openbb_sugra.models.company_news import SugraCompanyNewsFetcher
+from openbb_sugra.models.composite_leading_indicator import (
+    SugraCompositeLeadingIndicatorFetcher,
+)
 from openbb_sugra.models.congress_amendment_info import SugraCongressAmendmentInfoFetcher
 from openbb_sugra.models.congress_amendments import SugraCongressAmendmentsFetcher
 from openbb_sugra.models.congress_bill_info import SugraCongressBillInfoFetcher
@@ -40,6 +43,9 @@ from openbb_sugra.models.congress_committee_info import (
 from openbb_sugra.models.consumer_price_index import SugraConsumerPriceIndexFetcher
 from openbb_sugra.models.cot import SugraCOTFetcher
 from openbb_sugra.models.cot_search import SugraCotSearchFetcher
+from openbb_sugra.models.country_interest_rates import (
+    SugraCountryInterestRatesFetcher,
+)
 from openbb_sugra.models.crypto_historical import SugraCryptoHistoricalFetcher
 from openbb_sugra.models.crypto_search import SugraCryptoSearchFetcher
 from openbb_sugra.models.currency_historical import SugraCurrencyHistoricalFetcher
@@ -96,11 +102,13 @@ from openbb_sugra.models.forward_sales_estimates import (
 )
 from openbb_sugra.models.fred_search import SugraFredSearchFetcher
 from openbb_sugra.models.fred_series import SugraFredSeriesFetcher
+from openbb_sugra.models.gdp_forecast import SugraGdpForecastFetcher
 from openbb_sugra.models.gdp_nominal import SugraGdpNominalFetcher
 from openbb_sugra.models.gdp_real import SugraGdpRealFetcher
 from openbb_sugra.models.growth_tech_equities import SugraGrowthTechEquitiesFetcher
 from openbb_sugra.models.historical_dividends import SugraHistoricalDividendsFetcher
 from openbb_sugra.models.historical_splits import SugraHistoricalSplitsFetcher
+from openbb_sugra.models.house_price_index import SugraHousePriceIndexFetcher
 from openbb_sugra.models.income_statement import SugraIncomeStatementFetcher
 from openbb_sugra.models.index_constituents import SugraIndexConstituentsFetcher
 from openbb_sugra.models.index_historical import SugraIndexHistoricalFetcher
@@ -147,6 +155,7 @@ from openbb_sugra.models.selected_treasury_constant_maturity import (
 from openbb_sugra.models.senior_loan_officer_survey import (
     SugraSeniorLoanOfficerSurveyFetcher,
 )
+from openbb_sugra.models.share_price_index import SugraSharePriceIndexFetcher
 from openbb_sugra.models.share_statistics import SugraShareStatisticsFetcher
 from openbb_sugra.models.short_term_energy_outlook import (
     SugraShortTermEnergyOutlookFetcher,
@@ -204,6 +213,7 @@ sugra_provider = Provider(
         "CommoditySpotPrices": SugraCommoditySpotPricesFetcher,
         "CompanyFilings": SugraCompanyFilingsFetcher,
         "CompanyNews": SugraCompanyNewsFetcher,
+        "CompositeLeadingIndicator": SugraCompositeLeadingIndicatorFetcher,
         "CongressAmendmentInfo": SugraCongressAmendmentInfoFetcher,
         "CongressAmendments": SugraCongressAmendmentsFetcher,
         "CongressBillInfo": SugraCongressBillInfoFetcher,
@@ -211,6 +221,7 @@ sugra_provider = Provider(
         "CongressCommitteeDocuments": SugraCongressCommitteeDocumentsFetcher,
         "CongressCommitteeInfo": SugraCongressCommitteeInfoFetcher,
         "ConsumerPriceIndex": SugraConsumerPriceIndexFetcher,
+        "CountryInterestRates": SugraCountryInterestRatesFetcher,
         "CryptoHistorical": SugraCryptoHistoricalFetcher,
         "CryptoSearch": SugraCryptoSearchFetcher,
         "CurrencyHistorical": SugraCurrencyHistoricalFetcher,
@@ -251,11 +262,13 @@ sugra_provider = Provider(
         "ForwardSalesEstimates": SugraForwardSalesEstimatesFetcher,
         "FredSearch": SugraFredSearchFetcher,
         "FredSeries": SugraFredSeriesFetcher,
+        "GdpForecast": SugraGdpForecastFetcher,
         "GdpNominal": SugraGdpNominalFetcher,
         "GdpReal": SugraGdpRealFetcher,
         "GrowthTechEquities": SugraGrowthTechEquitiesFetcher,
         "HistoricalDividends": SugraHistoricalDividendsFetcher,
         "HistoricalSplits": SugraHistoricalSplitsFetcher,
+        "HousePriceIndex": SugraHousePriceIndexFetcher,
         "IncomeStatement": SugraIncomeStatementFetcher,
         "IndexConstituents": SugraIndexConstituentsFetcher,
         "IndexHistorical": SugraIndexHistoricalFetcher,
@@ -286,6 +299,7 @@ sugra_provider = Provider(
         "SpotRate": SugraSpotRateFetcher,
         "SelectedTreasuryConstantMaturity": SugraSelectedTreasuryConstantMaturityFetcher,
         "SeniorLoanOfficerSurvey": SugraSeniorLoanOfficerSurveyFetcher,
+        "SharePriceIndex": SugraSharePriceIndexFetcher,
         "ShareStatistics": SugraShareStatisticsFetcher,
         "ShortTermEnergyOutlook": SugraShortTermEnergyOutlookFetcher,
         "SurveyOfEconomicConditionsChicago": (
