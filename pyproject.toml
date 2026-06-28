@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "openbb-sugra"
-version = "0.1.1"
+version = "0.2.0"
 description = "Sugra data provider extension for the OpenBB Platform - one key across markets, fundamentals, macro, rates, crypto, currencies, news, ETFs, indices, and maritime data."
 authors = ["Sugra Systems <support@sugra.systems>"]
 license = "AGPL-3.0-only"
