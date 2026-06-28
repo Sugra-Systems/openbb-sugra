@@ -1,0 +1,39 @@
+[
+  {
+    "name": "Sugra Entity Screening",
+    "description": "Sanctions, PEP, KYB and crypto-wallet screening from the Sugra API, inside OpenBB Workspace. Start with coverage and a name screen, then compose a full KYB profile and ask Copilot to assess counterparty risk.",
+    "img": "https://sugra.ai/og.png",
+    "allowCustomization": true,
+    "tabs": {
+      "screening": {
+        "id": "screening",
+        "name": "Screening",
+        "layout": [
+          { "i": "entity_sources", "x": 0, "y": 0, "w": 20, "h": 9, "groups": [] },
+          { "i": "entity_screen", "x": 20, "y": 0, "w": 20, "h": 9, "groups": [] },
+          { "i": "entity_resolve", "x": 0, "y": 9, "w": 20, "h": 9, "groups": [] },
+          { "i": "entity_wallet_screen", "x": 20, "y": 9, "w": 20, "h": 8, "groups": [] },
+          { "i": "entity_id_screen", "x": 0, "y": 18, "w": 20, "h": 8, "groups": [] },
+          { "i": "entity_batch_screen", "x": 20, "y": 17, "w": 20, "h": 9, "groups": [] }
+        ]
+      },
+      "kyb": {
+        "id": "kyb",
+        "name": "KYB Profile",
+        "layout": [
+          { "i": "entity_kyb", "x": 0, "y": 0, "w": 20, "h": 12, "groups": [] },
+          { "i": "entity_adverse_media", "x": 20, "y": 0, "w": 20, "h": 12, "groups": [] }
+        ]
+      }
+    },
+    "groups": [
+      {
+        "name": "Entity",
+        "type": "param",
+        "paramName": "value",
+        "defaultValue": "",
+        "widgetIds": ["entity_kyb", "entity_adverse_media"]
+      }
+    ]
+  }
+]
