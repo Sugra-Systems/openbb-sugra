@@ -1124,8 +1124,14 @@ def test_futures_historical_maps_rows_and_skips_null_close():
     )
 
     rows = [
-        {"date": "2026-06-23", "open": 74.1, "high": 74.4, "low": 72.0, "close": 73.2, "volume": 100},
-        {"date": "2026-06-24", "open": 73.5, "high": 73.9, "low": 72.8, "close": None, "volume": 90},
+        {
+            "date": "2026-06-23", "open": 74.1, "high": 74.4,
+            "low": 72.0, "close": 73.2, "volume": 100,
+        },
+        {
+            "date": "2026-06-24", "open": 73.5, "high": 73.9,
+            "low": 72.8, "close": None, "volume": 90,
+        },
     ]
     out = SugraFuturesHistoricalFetcher.transform_data(
         SugraFuturesHistoricalQueryParams(symbol="CL"), rows
