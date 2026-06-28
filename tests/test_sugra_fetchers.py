@@ -1116,8 +1116,12 @@ def test_balance_of_payments_period_bounds_and_drop():
 # --- Futures-specific regression tests (offline) ----------------------------
 
 
-def test_futures_historical_maps_rows_and_skips_null_close():
-    """OHLCV rows map to the standard model; a null-close bar is dropped."""
+def test_futures_historical_maps_rows_and_skips_incomplete():
+    """OHLCV rows map to the standard model; bars missing a required field drop.
+
+    `date` and `close` are both required by FuturesHistoricalData, so a row
+    lacking either must be skipped rather than raising a ValidationError.
+    """
     from openbb_sugra.models.futures_historical import (
         SugraFuturesHistoricalFetcher,
         SugraFuturesHistoricalQueryParams,
@@ -1131,6 +1135,10 @@ def test_futures_historical_maps_rows_and_skips_null_close():
         {
             "date": "2026-06-24", "open": 73.5, "high": 73.9,
             "low": 72.8, "close": None, "volume": 90,
+        },
+        {
+            "date": None, "open": 73.0, "high": 73.4,
+            "low": 72.5, "close": 72.9, "volume": 80,
         },
     ]
     out = SugraFuturesHistoricalFetcher.transform_data(

@@ -80,8 +80,8 @@ class SugraFuturesHistoricalFetcher(
         """Map the OHLCV rows to the standard model."""
         results: list[SugraFuturesHistoricalData] = []
         for row in data:
-            # `close` is required by the standard model; skip an incomplete bar.
-            if row.get("close") is None:
+            # `date` and `close` are required by the standard model; skip an incomplete bar.
+            if row.get("date") is None or row.get("close") is None:
                 continue
             results.append(
                 SugraFuturesHistoricalData.model_validate(
