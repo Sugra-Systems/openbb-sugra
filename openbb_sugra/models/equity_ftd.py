@@ -54,20 +54,25 @@ class SugraEquityFtdFetcher(
         payload = envelope_data(response)
         if not isinstance(payload, dict):
             return []
+        # The rollup carries the canonical (resolved) symbol; prefer it over the
+        # raw query value so an alias still labels rows with the real ticker.
+        canonical = payload.get("symbol") or symbol
         rows: list[dict] = []
         for rec in payload.get("records") or []:
             if not isinstance(rec, dict) or not rec.get("date"):
                 continue
             # The standard model's settlement_date validator runs strftime on the
             # value, so it must be a date object - the Sugra rollup stores it as an
-            # ISO string. Skip any malformed date rather than sink the whole pull.
+            # ISO date string. Slice to the date portion (defensive against any
+            # future time component, which date.fromisoformat rejects on 3.10) and
+            # skip a malformed date rather than sink the whole pull.
             try:
-                settlement_date = date.fromisoformat(rec["date"])
+                settlement_date = date.fromisoformat(str(rec["date"])[:10])
             except (TypeError, ValueError):
                 continue
             rows.append(
                 {
-                    "symbol": symbol,
+                    "symbol": canonical,
                     "settlement_date": settlement_date,
                     "cusip": rec.get("cusip"),
                     "quantity": rec.get("quantity"),
