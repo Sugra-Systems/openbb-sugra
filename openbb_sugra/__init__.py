@@ -67,6 +67,7 @@ from openbb_sugra.models.discount_window_primary_credit_rate import (
 from openbb_sugra.models.ecb_interest_rates import SugraECBInterestRatesFetcher
 from openbb_sugra.models.economic_indicators import SugraEconomicIndicatorsFetcher
 from openbb_sugra.models.equity_active import SugraEquityActiveFetcher
+from openbb_sugra.models.equity_ftd import SugraEquityFtdFetcher
 from openbb_sugra.models.equity_gainers import SugraEquityGainersFetcher
 from openbb_sugra.models.equity_historical import SugraEquityHistoricalFetcher
 from openbb_sugra.models.equity_info import SugraEquityInfoFetcher
@@ -275,6 +276,7 @@ sugra_provider = Provider(
         "EconomicIndicators": SugraEconomicIndicatorsFetcher,
         "EquityActive": SugraEquityActiveFetcher,
         "EquityAggressiveSmallCaps": SugraEquityAggressiveSmallCapsFetcher,
+        "EquityFTD": SugraEquityFtdFetcher,
         "EquityGainers": SugraEquityGainersFetcher,
         "EquityHistorical": SugraEquityHistoricalFetcher,
         "EquityInfo": SugraEquityInfoFetcher,

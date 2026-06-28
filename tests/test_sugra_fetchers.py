@@ -77,6 +77,7 @@ PARAMS: dict[str, dict] = {
     "DiscountWindowPrimaryCreditRate": {},
     "EquityActive": {},
     "EquityAggressiveSmallCaps": {},
+    "EquityFTD": {"symbol": "AAPL"},
     "EquityGainers": {},
     "EquityHistorical": {"symbol": "AAPL"},
     "EquityInfo": {"symbol": "AAPL"},
