@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/Sugra-Systems/openbb-sugra/main/assets/coverage.png" alt="Sugra for OpenBB - 117 OpenBB data models from one Sugra key" width="960">
+<img src="https://raw.githubusercontent.com/Sugra-Systems/openbb-sugra/main/assets/coverage.png" alt="Sugra for OpenBB - 138 OpenBB data models from one Sugra key" width="960">
 
 # openbb-sugra
 
@@ -11,13 +11,13 @@
 [![License](https://img.shields.io/badge/license-AGPL--3.0-00AAFF)](LICENSE)
 [![OpenBB](https://img.shields.io/badge/OpenBB-provider-00AAFF)](https://docs.openbb.co/)
 
-One Sugra API key. 117 OpenBB data models. One provider.
+One Sugra API key. 138 OpenBB data models. One provider.
 
 </div>
 
 ---
 
-**One Sugra API key. 117 OpenBB data models. One provider.**
+**One Sugra API key. 138 OpenBB data models. One provider.**
 
 Wire in one credential and pull equities and fundamentals, estimates, ownership, calendars, options, crypto, currencies, news, macro and rates, treasuries, ETFs and indices, commodities, and maritime data - the breadth that otherwise needs many separate provider keys. Every model is live-verified against the Sugra API and through the OpenBB `obb.*` layer.
 
