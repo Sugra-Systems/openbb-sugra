@@ -111,6 +111,8 @@ from openbb_sugra.models.forward_sales_estimates import (
 )
 from openbb_sugra.models.fred_search import SugraFredSearchFetcher
 from openbb_sugra.models.fred_series import SugraFredSeriesFetcher
+from openbb_sugra.models.futures_curve import SugraFuturesCurveFetcher
+from openbb_sugra.models.futures_historical import SugraFuturesHistoricalFetcher
 from openbb_sugra.models.gdp_forecast import SugraGdpForecastFetcher
 from openbb_sugra.models.gdp_nominal import SugraGdpNominalFetcher
 from openbb_sugra.models.gdp_real import SugraGdpRealFetcher
@@ -307,6 +309,8 @@ sugra_provider = Provider(
         "FredReleaseTable": SugraReleaseTableFetcher,
         "FredSearch": SugraFredSearchFetcher,
         "FredSeries": SugraFredSeriesFetcher,
+        "FuturesCurve": SugraFuturesCurveFetcher,
+        "FuturesHistorical": SugraFuturesHistoricalFetcher,
         "GdpForecast": SugraGdpForecastFetcher,
         "GdpNominal": SugraGdpNominalFetcher,
         "GdpReal": SugraGdpRealFetcher,

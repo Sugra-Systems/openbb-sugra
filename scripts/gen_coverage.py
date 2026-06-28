@@ -41,7 +41,7 @@ GROUP_DESC = {
     "news": "News",
     "uscongress": "US Congress bills, amendments, committees, and documents",
     "regulators": "SEC registry: CIK and symbol maps, institution and SIC search",
-    "derivatives": "Options",
+    "derivatives": "Options, Futures",
 }
 
 

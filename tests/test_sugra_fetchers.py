@@ -111,6 +111,8 @@ PARAMS: dict[str, dict] = {
     "FredReleaseTable": {"release_id": "402", "element_id": "219299"},
     "FredSearch": {"query": "unemployment"},
     "FredSeries": {"symbol": "GDP"},
+    "FuturesCurve": {"symbol": "CL"},
+    "FuturesHistorical": {"symbol": "CL"},
     "GdpForecast": {},
     "GdpNominal": {},
     "GdpReal": {},
@@ -1109,3 +1111,82 @@ def test_balance_of_payments_period_bounds_and_drop():
         assert "failed standard-model validation" in str(exc)
         return
     raise AssertionError("an all-invalid batch must raise EmptyDataError")
+
+
+# --- Futures-specific regression tests (offline) ----------------------------
+
+
+def test_futures_historical_maps_rows_and_skips_incomplete():
+    """OHLCV rows map to the standard model; bars missing a required field drop.
+
+    `date` and `close` are both required by FuturesHistoricalData, so a row
+    lacking either must be skipped rather than raising a ValidationError.
+    """
+    from openbb_sugra.models.futures_historical import (
+        SugraFuturesHistoricalFetcher,
+        SugraFuturesHistoricalQueryParams,
+    )
+
+    rows = [
+        {
+            "date": "2026-06-23", "open": 74.1, "high": 74.4,
+            "low": 72.0, "close": 73.2, "volume": 100,
+        },
+        {
+            "date": "2026-06-24", "open": 73.5, "high": 73.9,
+            "low": 72.8, "close": None, "volume": 90,
+        },
+        {
+            "date": None, "open": 73.0, "high": 73.4,
+            "low": 72.5, "close": 72.9, "volume": 80,
+        },
+    ]
+    out = SugraFuturesHistoricalFetcher.transform_data(
+        SugraFuturesHistoricalQueryParams(symbol="CL"), rows
+    )
+    assert len(out) == 1
+    assert out[0].close == 73.2
+
+
+def test_futures_curve_maps_points_skips_null_and_sets_snapshot_date():
+    """Curve points map to the standard model; null-price/expiration dropped."""
+    from openbb_sugra.models.futures_curve import (
+        SugraFuturesCurveFetcher,
+        SugraFuturesCurveQueryParams,
+    )
+
+    payload = {
+        "as_of": "2026-06-28T10:28:38Z",
+        "points": [
+            {"expiration": "2026-08", "expiration_date": "2026-07-21", "price": 69.23},
+            {"expiration": "2026-09", "expiration_date": "2026-08-20", "price": None},
+            {"expiration": None, "expiration_date": None, "price": 70.0},
+        ],
+    }
+    out = SugraFuturesCurveFetcher.transform_data(
+        SugraFuturesCurveQueryParams(symbol="CL"), payload
+    )
+    assert len(out) == 1
+    assert out[0].expiration == "2026-08"
+    assert out[0].price == 69.23
+    assert str(out[0].date) == "2026-06-28"
+
+
+def test_futures_curve_rejects_historical_date():
+    """The snapshot curve must reject a historical date, not silently ignore it."""
+    import asyncio
+
+    from openbb_core.app.model.abstract.error import OpenBBError
+
+    from openbb_sugra.models.futures_curve import (
+        SugraFuturesCurveFetcher,
+        SugraFuturesCurveQueryParams,
+    )
+
+    query = SugraFuturesCurveQueryParams(symbol="CL", date="2024-01-01")
+    try:
+        asyncio.run(SugraFuturesCurveFetcher.aextract_data(query, {"sugra_api_key": "x"}))
+    except OpenBBError as exc:
+        assert "snapshot" in str(exc).lower()
+        return
+    raise AssertionError("a historical date must raise OpenBBError")
