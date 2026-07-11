@@ -11,17 +11,16 @@ from openbb_congress_gov.models.amendment_info import (
 from openbb_core.provider.abstract.fetcher import Fetcher
 
 
-def _parse_amendment_ref(amendment_url: str) -> tuple[int, str, str]:
-    """Resolve the standard model's ``amendment_url`` to (congress, type, number).
+def _parse_amendment_ref(amendment_ref: str) -> tuple[int, str, str]:
+    """Resolve an amendment URL, V4 slash ref, or V5 id.
 
-    Accepts a bare ``congress/type/number`` (e.g. ``119/hamdt/2``, optionally
-    leading-slashed) or a full congress.gov URL (e.g.
-    ``https://api.congress.gov/v3/amendment/119/hamdt/2?format=json``).
+    Accepts ``119/hamdt/2``, ``119-hamdt-2``, optionally leading-slashed, or a
+    full congress.gov URL like ``https://api.congress.gov/v3/amendment/119/hamdt/2``.
     """
     # pylint: disable=import-outside-toplevel
     from openbb_core.app.model.abstract.error import OpenBBError
 
-    ref = (amendment_url or "").strip()
+    ref = (amendment_ref or "").strip()
     if ref.lower().startswith("http"):
         from urllib.parse import urlparse
 
@@ -31,20 +30,37 @@ def _parse_amendment_ref(amendment_url: str) -> tuple[int, str, str]:
             if "amendment" in parts
             else parts[-3:]
         )
+    elif "/" not in ref and "-" in ref:
+        seg = [p for p in ref.split("-") if p]
     else:
         seg = [p for p in ref.strip("/").split("/") if p]
     if len(seg) < 3:
         raise OpenBBError(
-            f"Could not parse an amendment reference from '{amendment_url}'. Expected "
-            "'congress/type/number' (e.g. '119/hamdt/2') or a full amendment URL."
+            f"Could not parse an amendment reference from '{amendment_ref}'. Expected "
+            "'congress/type/number', 'congress-type-number', or a full amendment URL."
         )
     congress, amendment_type, number = seg[0], seg[1], seg[2]
     try:
         return int(congress), amendment_type.lower(), str(number)
     except (TypeError, ValueError) as exc:
         raise OpenBBError(
-            f"Invalid congress number in amendment reference '{amendment_url}'."
+            f"Invalid congress number in amendment reference '{amendment_ref}'."
         ) from exc
+
+
+def _amendment_id(congress: int, amendment_type: str, number: str) -> str:
+    """Return the OpenBB V5 amendment id."""
+    return f"{congress}-{amendment_type.lower()}-{number}"
+
+
+def _amendment_url(congress: int, amendment_type: str, number: str) -> str:
+    """Return the OpenBB V4 slash-style amendment reference."""
+    return f"{congress}/{amendment_type.lower()}/{number}"
+
+
+def _query_amendment_ref(query: CongressAmendmentInfoQueryParams) -> str:
+    """Return the amendment reference from either V4 or V5 query models."""
+    return getattr(query, "amendment_url", None) or getattr(query, "amendment_id")
 
 
 class SugraCongressAmendmentInfoFetcher(
@@ -61,7 +77,21 @@ class SugraCongressAmendmentInfoFetcher(
     @staticmethod
     def transform_query(params: dict[str, Any]) -> CongressAmendmentInfoQueryParams:
         """Transform the query parameters."""
-        return CongressAmendmentInfoQueryParams(**params)
+        normalized = dict(params)
+        fields = CongressAmendmentInfoQueryParams.model_fields
+        if "amendment_id" in fields and "amendment_id" not in normalized:
+            ref = normalized.pop("amendment_url", None)
+            if ref is not None:
+                normalized["amendment_id"] = _amendment_id(
+                    *_parse_amendment_ref(ref)
+                )
+        elif "amendment_url" in fields and "amendment_url" not in normalized:
+            ref = normalized.pop("amendment_id", None)
+            if ref is not None:
+                normalized["amendment_url"] = _amendment_url(
+                    *_parse_amendment_ref(ref)
+                )
+        return CongressAmendmentInfoQueryParams(**normalized)
 
     @staticmethod
     async def aextract_data(
@@ -76,7 +106,9 @@ class SugraCongressAmendmentInfoFetcher(
         from openbb_sugra.utils.helpers import envelope_data, get_api_key, sugra_get
 
         api_key = get_api_key(credentials)
-        congress, amendment_type, number = _parse_amendment_ref(query.amendment_url)
+        congress, amendment_type, number = _parse_amendment_ref(
+            _query_amendment_ref(query)
+        )
         response = await sugra_get(
             f"/api/v1/congress/amendments/{congress}/{amendment_type}/{number}",
             api_key,

@@ -12,6 +12,16 @@ from openbb_congress_gov.models.congress_bills import (
 from openbb_core.provider.abstract.fetcher import Fetcher
 
 
+def _bill_id_from_record(record: dict) -> str | None:
+    """Return the V5 congress bill id for a congress.gov bill list row."""
+    congress = record.get("congress")
+    bill_type = record.get("type")
+    number = record.get("number")
+    if congress is None or bill_type is None or number is None:
+        return None
+    return f"{congress}-{str(bill_type).lower()}-{number}"
+
+
 def _within_update_window(
     rows: list, start: dateType | None, end: dateType | None
 ) -> list:
@@ -99,11 +109,20 @@ class SugraCongressBillsFetcher(Fetcher[CongressBillsQueryParams, list[CongressB
 
         if not data:
             raise EmptyDataError("No Congressional bills returned.")
+        normalized: list[dict] = []
         # Sugra emits `latestAction: null` for placeholder bills (e.g. "Reserved
         # for the Speaker"); the congress.gov transform's sort key assumes a dict,
         # so coerce null to an empty dict before delegating.
         for record in data:
-            if isinstance(record, dict) and record.get("latestAction") is None:
-                record["latestAction"] = {}
-        rows = CongressBillsFetcher.transform_data(query, data, **kwargs)
+            if not isinstance(record, dict):
+                continue
+            row = dict(record)
+            if row.get("latestAction") is None:
+                row["latestAction"] = {}
+            if "bill_id" not in row and "billId" not in row:
+                bill_id = _bill_id_from_record(row)
+                if bill_id:
+                    row["bill_id"] = bill_id
+            normalized.append(row)
+        rows = CongressBillsFetcher.transform_data(query, normalized, **kwargs)
         return _within_update_window(rows, query.start_date, query.end_date)

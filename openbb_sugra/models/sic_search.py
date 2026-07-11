@@ -4,23 +4,37 @@
 
 from typing import Any
 
+from openbb_core.provider.abstract.data import Data
 from openbb_core.provider.abstract.fetcher import Fetcher
-from openbb_sec.models.sic_search import SecSicSearchData, SecSicSearchQueryParams
+from openbb_core.provider.abstract.query_params import QueryParams
 from pydantic import Field
 
 
-class SugraSicSearchQueryParams(SecSicSearchQueryParams):
+class SugraSicSearchQueryParams(QueryParams):
     """Sugra SEC SIC Search Query Parameters.
 
     Drops the ``use_cache`` field of the SEC provider: the catalog is embedded
     in the package, so there is no remote table to cache.
     """
 
+    query: str = Field(
+        description="Search query to match against SIC code, industry title, or office."
+    )
     use_cache: bool | None = Field(default=None, exclude=True, description="Unused.")
 
 
-class SugraSicSearchData(SecSicSearchData):
+class SugraSicSearchData(Data):
     """Sugra SEC SIC Search Data."""
+
+    __alias_dict__ = {
+        "sic": "SIC Code",
+        "industry": "Industry Title",
+        "office": "Office",
+    }
+
+    sic: int = Field(description="The SIC code.")
+    industry: str = Field(description="The industry title.")
+    office: str = Field(description="The office.")
 
 
 class SugraSicSearchFetcher(

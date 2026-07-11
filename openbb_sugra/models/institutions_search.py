@@ -4,15 +4,13 @@
 
 from typing import Any
 
+from openbb_core.provider.abstract.data import Data
 from openbb_core.provider.abstract.fetcher import Fetcher
-from openbb_sec.models.institutions_search import (
-    SecInstitutionsSearchData,
-    SecInstitutionsSearchQueryParams,
-)
+from openbb_core.provider.abstract.query_params import QueryParams
 from pydantic import Field
 
 
-class SugraInstitutionsSearchQueryParams(SecInstitutionsSearchQueryParams):
+class SugraInstitutionsSearchQueryParams(QueryParams):
     """Sugra Institutions Search Query Parameters.
 
     The Sugra advisers-search endpoint requires a ``query`` of at least two
@@ -20,13 +18,29 @@ class SugraInstitutionsSearchQueryParams(SecInstitutionsSearchQueryParams):
     raises a clear error rather than returning the full adviser universe.
     """
 
+    query: str = Field(default="", description="Search query.")
+    use_cache: bool | None = Field(default=None, exclude=True, description="Unused.")
 
-class SugraInstitutionsSearchData(SecInstitutionsSearchData):
+
+class SugraInstitutionsSearchData(Data):
     """Sugra Institutions Search Data."""
 
+    __alias_dict__ = {
+        "name": "Institution",
+        "cik": "CIK Number",
+    }
+
+    name: str = Field(description="The institution name.")
+    cik: str | None = Field(default=None, description="The institution's CIK number.")
     crd: str | None = Field(default=None, description="The adviser's CRD number.")
-    sec_number: str | None = Field(default=None, description="The SEC registration number.")
-    legal_name: str | None = Field(default=None, description="The legal name of the institution.")
+    sec_number: str | None = Field(
+        default=None,
+        description="The SEC registration number.",
+    )
+    legal_name: str | None = Field(
+        default=None,
+        description="The legal name of the institution.",
+    )
     firm_type: str | None = Field(default=None, description="The firm registration type.")
     raum_total: float | None = Field(
         default=None,

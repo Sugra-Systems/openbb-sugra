@@ -11,36 +11,52 @@ from openbb_congress_gov.models.bill_info import (
 from openbb_core.provider.abstract.fetcher import Fetcher
 
 
-def _parse_bill_ref(bill_url: str) -> tuple[int, str, str]:
-    """Resolve the standard model's ``bill_url`` to (congress, bill_type, number).
+def _parse_bill_ref(bill_ref: str) -> tuple[int, str, str]:
+    """Resolve a bill URL, V4 slash ref, or V5 id to congress/type/number.
 
-    Accepts a bare ``congress/type/number`` (e.g. ``119/hr/1``, optionally
-    leading-slashed) or a full congress.gov URL (e.g.
-    ``https://api.congress.gov/v3/bill/119/s/1947?format=json``).
+    Accepts ``119/hr/1``, ``119-hr-1``, optionally leading-slashed, or a full
+    congress.gov URL like ``https://api.congress.gov/v3/bill/119/s/1947``.
     """
     # pylint: disable=import-outside-toplevel
     from openbb_core.app.model.abstract.error import OpenBBError
 
-    ref = (bill_url or "").strip()
+    ref = (bill_ref or "").strip()
     if ref.lower().startswith("http"):
         from urllib.parse import urlparse
 
         parts = [p for p in urlparse(ref).path.split("/") if p]
         seg = parts[parts.index("bill") + 1:][:3] if "bill" in parts else parts[-3:]
+    elif "/" not in ref and "-" in ref:
+        seg = [p for p in ref.split("-") if p]
     else:
         seg = [p for p in ref.strip("/").split("/") if p]
     if len(seg) < 3:
         raise OpenBBError(
-            f"Could not parse a bill reference from '{bill_url}'. Expected "
-            "'congress/type/number' (e.g. '119/hr/1') or a full bill URL."
+            f"Could not parse a bill reference from '{bill_ref}'. Expected "
+            "'congress/type/number', 'congress-type-number', or a full bill URL."
         )
     congress, bill_type, number = seg[0], seg[1], seg[2]
     try:
         return int(congress), bill_type.lower(), str(number)
     except (TypeError, ValueError) as exc:
         raise OpenBBError(
-            f"Invalid congress number in bill reference '{bill_url}'."
+            f"Invalid congress number in bill reference '{bill_ref}'."
         ) from exc
+
+
+def _bill_id(congress: int, bill_type: str, number: str) -> str:
+    """Return the OpenBB V5 bill id."""
+    return f"{congress}-{bill_type.lower()}-{number}"
+
+
+def _bill_url(congress: int, bill_type: str, number: str) -> str:
+    """Return the OpenBB V4 slash-style bill reference."""
+    return f"{congress}/{bill_type.lower()}/{number}"
+
+
+def _query_bill_ref(query: CongressBillInfoQueryParams) -> str:
+    """Return the bill reference from either V4 or V5 query models."""
+    return getattr(query, "bill_url", None) or getattr(query, "bill_id")
 
 
 class SugraCongressBillInfoFetcher(
@@ -58,7 +74,17 @@ class SugraCongressBillInfoFetcher(
     @staticmethod
     def transform_query(params: dict[str, Any]) -> CongressBillInfoQueryParams:
         """Transform the query parameters."""
-        return CongressBillInfoQueryParams(**params)
+        normalized = dict(params)
+        fields = CongressBillInfoQueryParams.model_fields
+        if "bill_id" in fields and "bill_id" not in normalized:
+            ref = normalized.pop("bill_url", None)
+            if ref is not None:
+                normalized["bill_id"] = _bill_id(*_parse_bill_ref(ref))
+        elif "bill_url" in fields and "bill_url" not in normalized:
+            ref = normalized.pop("bill_id", None)
+            if ref is not None:
+                normalized["bill_url"] = _bill_url(*_parse_bill_ref(ref))
+        return CongressBillInfoQueryParams(**normalized)
 
     @staticmethod
     async def aextract_data(
@@ -73,7 +99,7 @@ class SugraCongressBillInfoFetcher(
         from openbb_sugra.utils.helpers import envelope_data, get_api_key, sugra_get
 
         api_key = get_api_key(credentials)
-        congress, bill_type, number = _parse_bill_ref(query.bill_url)
+        congress, bill_type, number = _parse_bill_ref(_query_bill_ref(query))
         response = await sugra_get(
             f"/api/v1/congress/bills/{congress}/{bill_type}/{number}",
             api_key,

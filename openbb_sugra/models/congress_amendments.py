@@ -13,6 +13,16 @@ from openbb_core.provider.abstract.fetcher import Fetcher
 from openbb_sugra.models.congress_bills import _within_update_window
 
 
+def _amendment_id_from_record(record: dict) -> str | None:
+    """Return the V5 congress amendment id for a congress.gov amendment row."""
+    congress = record.get("congress")
+    amendment_type = record.get("type")
+    number = record.get("number")
+    if congress is None or amendment_type is None or number is None:
+        return None
+    return f"{congress}-{str(amendment_type).lower()}-{number}"
+
+
 class SugraCongressAmendmentsFetcher(
     Fetcher[CongressAmendmentsQueryParams, list[CongressAmendmentsData]]
 ):
@@ -83,12 +93,21 @@ class SugraCongressAmendmentsFetcher(
 
         if not data:
             raise EmptyDataError("No Congressional amendments returned.")
+        normalized: list[dict] = []
         # Sugra may emit `latestAction: null`; the congress.gov transform's sort
         # key assumes a dict, so coerce null to an empty dict before delegating.
         for record in data:
-            if isinstance(record, dict) and record.get("latestAction") is None:
-                record["latestAction"] = {}
-        rows = CongressAmendmentsFetcher.transform_data(query, data, **kwargs)
+            if not isinstance(record, dict):
+                continue
+            row = dict(record)
+            if row.get("latestAction") is None:
+                row["latestAction"] = {}
+            if "amendment_id" not in row and "amendmentId" not in row:
+                amendment_id = _amendment_id_from_record(row)
+                if amendment_id:
+                    row["amendment_id"] = amendment_id
+            normalized.append(row)
+        rows = CongressAmendmentsFetcher.transform_data(query, normalized, **kwargs)
         # The Sugra amendments endpoint ignores the type filter, so apply it here.
         if query.amendment_type:
             wanted = query.amendment_type.lower()
