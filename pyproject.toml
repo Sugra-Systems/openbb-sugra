@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "openbb-sugra"
-version = "0.2.0"
+version = "0.2.1"
 description = "Sugra data provider extension for the OpenBB Platform - one key across markets, fundamentals, macro, rates, crypto, currencies, news, ETFs, indices, and maritime data."
 authors = ["Sugra Systems <support@sugra.systems>"]
 license = "AGPL-3.0-only"
@@ -25,10 +25,9 @@ packages = [{ include = "openbb_sugra" }]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4"
-openbb-core = "^1.6"
-openbb-congress-gov = "^1.2"
-openbb-famafrench = "^1.2"
-openbb-sec = "^1.6"
+openbb-core = ">=1.6,<3"
+openbb-congress-gov = ">=1.2,<3"
+openbb-famafrench = ">=1.2,<3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"

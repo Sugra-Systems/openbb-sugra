@@ -47,3 +47,9 @@ jobs:
           assert not unknown, f'unknown standard-model keys: {unknown}'
           print(f'OK: sugra provider, {len(p.fetcher_dict)} fetchers, all keys valid')
           "
+      - name: Clone OpenBB v5 source
+        if: matrix.python-version == '3.12'
+        run: git clone --depth 1 --branch v5 https://github.com/OpenBB-finance/OpenBB.git .tmp/OpenBB-v5
+      - name: Pytest against OpenBB v5 source overlay
+        if: matrix.python-version == '3.12'
+        run: python scripts/run_v5_overlay_tests.py --openbb-path .tmp/OpenBB-v5 -- -q

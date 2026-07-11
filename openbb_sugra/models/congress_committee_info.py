@@ -11,6 +11,30 @@ from openbb_congress_gov.models.congress_committee_info import (
 from openbb_core.provider.abstract.fetcher import Fetcher
 
 
+def _normalize_committee_detail(data: dict) -> dict:
+    """Fill V5 committee detail aliases while preserving the Sugra payload."""
+    if not isinstance(data, dict):
+        return data
+    normalized = dict(data)
+    detail = normalized.get("detail")
+    if not isinstance(detail, dict):
+        return normalized
+
+    detail = dict(detail)
+    if not detail.get("name"):
+        history = detail.get("history")
+        if isinstance(history, list) and history:
+            first_history = history[0]
+            if isinstance(first_history, dict):
+                detail["name"] = first_history.get("officialName")
+    if not detail.get("chamber") and normalized.get("chamber"):
+        detail["chamber"] = normalized["chamber"]
+    if not detail.get("website") and detail.get("committeeWebsiteUrl"):
+        detail["website"] = detail["committeeWebsiteUrl"]
+    normalized["detail"] = detail
+    return normalized
+
+
 class SugraCongressCommitteeInfoFetcher(
     Fetcher[CongressCommitteeInfoQueryParams, CongressCommitteeInfoData]
 ):
@@ -77,4 +101,5 @@ class SugraCongressCommitteeInfoFetcher(
 
         if not data:
             raise EmptyDataError("No committee information returned.")
-        return CongressCommitteeInfoFetcher.transform_data(query, data, **kwargs)
+        normalized = _normalize_committee_detail(data)
+        return CongressCommitteeInfoFetcher.transform_data(query, normalized, **kwargs)
