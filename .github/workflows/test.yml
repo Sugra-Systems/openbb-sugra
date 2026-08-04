@@ -4,10 +4,7 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - '.claude/**'
       - '.github/workflows/**'
-      - 'CLAUDE.md'
-      - 'AGENTS.md'
       - '.gitignore'
       - '**/*.md'
       - 'assets/**'
