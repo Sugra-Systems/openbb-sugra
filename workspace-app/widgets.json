@@ -1,0 +1,158 @@
+{
+  "entity_sources": {
+    "name": "Sanctions & PEP Coverage",
+    "description": "Which sanctions and PEP source lists Sugra screens against, per-source freshness (max age) and covered regimes. No API key required.",
+    "category": "Compliance",
+    "type": "table",
+    "endpoint": "entity_sources",
+    "gridData": { "w": 20, "h": 9 },
+    "source": "Sugra Entity"
+  },
+  "entity_screen": {
+    "name": "Name Screening",
+    "description": "Screen a person or organisation name against the sanctions and PEP corpus and return matching hits with scores.",
+    "category": "Compliance",
+    "type": "table",
+    "endpoint": "entity_screen",
+    "gridData": { "w": 20, "h": 9 },
+    "source": "Sugra Entity",
+    "params": [
+      {
+        "paramName": "name",
+        "label": "Name",
+        "type": "text",
+        "value": "",
+        "description": "Person or organisation name to screen."
+      }
+    ]
+  },
+  "entity_resolve": {
+    "name": "Entity Resolution",
+    "description": "Resolve an ambiguous name to candidate corpus entities so you can pick the right one before a full screen.",
+    "category": "Compliance",
+    "type": "table",
+    "endpoint": "entity_resolve",
+    "gridData": { "w": 20, "h": 9 },
+    "source": "Sugra Entity",
+    "params": [
+      {
+        "paramName": "name",
+        "label": "Name",
+        "type": "text",
+        "value": "",
+        "description": "Name to resolve to candidate entities."
+      }
+    ]
+  },
+  "entity_batch_screen": {
+    "name": "Batch Screening",
+    "description": "Screen a list of names in one call — e.g. a portfolio of counterparties. Enter comma-separated names.",
+    "category": "Compliance",
+    "type": "table",
+    "endpoint": "entity_batch_screen",
+    "gridData": { "w": 40, "h": 10 },
+    "source": "Sugra Entity",
+    "params": [
+      {
+        "paramName": "names",
+        "label": "Names (comma-separated)",
+        "type": "text",
+        "value": "",
+        "description": "Comma-separated list of names to screen in one batch."
+      }
+    ]
+  },
+  "entity_wallet_screen": {
+    "name": "Wallet Screening",
+    "description": "Screen a crypto wallet address against the sanctions corpus.",
+    "category": "Compliance",
+    "type": "table",
+    "endpoint": "entity_wallet_screen",
+    "gridData": { "w": 20, "h": 8 },
+    "source": "Sugra Entity",
+    "params": [
+      {
+        "paramName": "address",
+        "label": "Wallet address",
+        "type": "text",
+        "value": "",
+        "description": "Crypto wallet address to screen."
+      }
+    ]
+  },
+  "entity_id_screen": {
+    "name": "Document ID Screening",
+    "description": "Screen a document identifier (passport, national id, ...) against the sanctions corpus.",
+    "category": "Compliance",
+    "type": "table",
+    "endpoint": "entity_id_screen",
+    "gridData": { "w": 20, "h": 8 },
+    "source": "Sugra Entity",
+    "params": [
+      {
+        "paramName": "id_type",
+        "label": "ID type",
+        "type": "text",
+        "value": "passport",
+        "description": "Identifier type, e.g. passport, national_id."
+      },
+      {
+        "paramName": "value",
+        "label": "ID value",
+        "type": "text",
+        "value": "",
+        "description": "The document identifier value to screen."
+      }
+    ]
+  },
+  "entity_kyb": {
+    "name": "KYB Profile",
+    "description": "Compose the full Know-Your-Business envelope for an entity (identity, screening, ownership, adverse media).",
+    "category": "Compliance",
+    "type": "markdown",
+    "endpoint": "entity_kyb",
+    "gridData": { "w": 20, "h": 12 },
+    "source": "Sugra Entity",
+    "params": [
+      {
+        "paramName": "anchor",
+        "label": "Anchor",
+        "type": "text",
+        "value": "name",
+        "description": "Lookup anchor, e.g. name, lei, id."
+      },
+      {
+        "paramName": "value",
+        "label": "Value",
+        "type": "text",
+        "value": "",
+        "description": "Anchor value, e.g. the entity name or LEI."
+      }
+    ]
+  },
+  "entity_adverse_media": {
+    "name": "Adverse Media",
+    "description": "Adverse-media slice of the KYB envelope for an entity.",
+    "category": "Compliance",
+    "type": "table",
+    "endpoint": "entity_adverse_media",
+    "gridData": { "w": 20, "h": 9 },
+    "source": "Sugra Entity",
+    "params": [
+      {
+        "paramName": "anchor",
+        "label": "Anchor",
+        "type": "text",
+        "value": "name",
+        "description": "Lookup anchor, e.g. name, lei, id."
+      },
+      {
+        "paramName": "value",
+        "label": "Value",
+        "type": "text",
+        "value": "",
+        "description": "Anchor value, e.g. the entity name or LEI."
+      }
+    ]
+  }
+}
