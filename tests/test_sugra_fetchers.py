@@ -781,6 +781,8 @@ def test_international_index_validates_flat_records():
 def test_treasury_auctions_maps_fields_and_skips_incomplete_rows():
     """Maps the Sugra projection to the standard model; a row missing the
     required issue_date/maturity_date is skipped, not failed."""
+    from datetime import date
+
     from openbb_core.provider.standard_models.treasury_auctions import (
         USTreasuryAuctionsQueryParams,
     )
@@ -800,8 +802,10 @@ def test_treasury_auctions_maps_fields_and_skips_incomplete_rows():
         {"cusip": "X", "security_type": "Bill", "security_term": "8-Week",
          "issue_date": "2026-06-25", "auction_date": "2026-06-23"},
     ]
+    # Fixed window: the default is the last ~3 months, so fixture dates age out.
     rows = SugraUSTreasuryAuctionsFetcher.transform_data(
-        USTreasuryAuctionsQueryParams(), data
+        USTreasuryAuctionsQueryParams(start_date=date(2026, 6, 1), end_date=date(2026, 6, 30)),
+        data,
     )
     assert len(rows) == 1
     r = rows[0]
@@ -874,6 +878,8 @@ def test_treasury_auctions_normalizes_security_type_and_flags_all_rejected():
     """Lowercase security_type from the endpoint is normalized to the model's
     title-case Literal; if every returned row fails validation the error says so
     (rather than conflating it with an empty filter match)."""
+    from datetime import date
+
     from openbb_core.provider.standard_models.treasury_auctions import (
         USTreasuryAuctionsQueryParams,
     )
@@ -881,10 +887,13 @@ def test_treasury_auctions_normalizes_security_type_and_flags_all_rejected():
 
     from openbb_sugra.models.treasury_auctions import SugraUSTreasuryAuctionsFetcher
 
+    # Fixed window: the default is the last ~3 months, so fixture dates age out.
+    june = USTreasuryAuctionsQueryParams(start_date=date(2026, 6, 1), end_date=date(2026, 6, 30))
+
     # A lowercase security_type would fail the title-case Literal without the
     # response-side normalization.
     ok = SugraUSTreasuryAuctionsFetcher.transform_data(
-        USTreasuryAuctionsQueryParams(),
+        june,
         [{
             "cusip": "91282CXX0", "security_type": "note", "security_term": "5-Year",
             "issue_date": "2026-06-30", "maturity_date": "2031-06-30",
@@ -898,7 +907,7 @@ def test_treasury_auctions_normalizes_security_type_and_flags_all_rejected():
     # generic "nothing matched the query".
     try:
         SugraUSTreasuryAuctionsFetcher.transform_data(
-            USTreasuryAuctionsQueryParams(),
+            june,
             [{
                 "cusip": "91282CXX0", "security_type": "Note", "security_term": "5-Year",
                 "issue_date": "not-a-date", "maturity_date": "2031-06-30",
