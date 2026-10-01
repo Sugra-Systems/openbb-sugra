@@ -46,7 +46,11 @@ jobs:
           "
       - name: Clone OpenBB v5 source
         if: matrix.python-version == '3.12'
-        run: git clone --depth 1 --branch v5 https://github.com/OpenBB-finance/OpenBB.git .tmp/OpenBB-v5
+        # Pinned: the upstream v5 branch was merged into develop and deleted.
+        run: |
+          git init -q .tmp/OpenBB-v5
+          git -C .tmp/OpenBB-v5 fetch -q --depth 1 https://github.com/OpenBB-finance/OpenBB.git 0aa603953221f0f6fbcfeb985e2d3d124c61e873
+          git -C .tmp/OpenBB-v5 checkout -q FETCH_HEAD
       - name: Pytest against OpenBB v5 source overlay
         if: matrix.python-version == '3.12'
         run: python scripts/run_v5_overlay_tests.py --openbb-path .tmp/OpenBB-v5 -- -q
